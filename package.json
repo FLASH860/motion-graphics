@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "assets:hero": "node scripts/process-hero.mjs"
+    "assets:hero": "node scripts/process-hero.mjs",
+    "assets:outro": "node scripts/process-outro.mjs",
+    "assets:watch": "node scripts/process-watch.mjs"
   },
   "dependencies": {
     "@fontsource-variable/cormorant": "^5.3.0",

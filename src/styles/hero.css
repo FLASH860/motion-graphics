@@ -1,7 +1,6 @@
 .hero {
   position: relative;
-  height: 100svh;
-  min-height: 520px;
+  height: 100%;
   overflow: hidden;
   background: var(--bg);
   isolation: isolate;
@@ -65,7 +64,7 @@
 
 /* ── portrait ── */
 .hero__plane--figure {
-  transform-origin: 50% 70%;
+  transform-origin: 50% 62%;
   /* dissolve the torso into the page so the surname can sit in front of it in either theme */
   -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 92%);
   mask-image: linear-gradient(to bottom, #000 58%, transparent 92%);

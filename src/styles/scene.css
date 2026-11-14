@@ -1,0 +1,157 @@
+/* ───────── scene stack (see lib/scene.ts for the model) ───────── */
+.scene {
+  position: relative;
+  height: calc((100 + var(--tin) + var(--dwell) + var(--tout)) * 1svh);
+  /* overlap the tail of the previous track so this scene opens while that one is still pinned */
+  margin-top: -200svh;
+  pointer-events: none;
+}
+.scene--first {
+  margin-top: 0;
+  background: var(--bg);
+}
+.scene__pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+  background: var(--bg);
+  pointer-events: auto;
+  /* closed until its ScrollTrigger opens it */
+  clip-path: inset(var(--clip, 50%) round var(--clip-r, 18px));
+  will-change: clip-path;
+}
+.scene--first > .scene__pin {
+  clip-path: none;
+}
+.scene__body {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+.scene__shade {
+  position: absolute;
+  inset: 0;
+  background: #050403;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* shared scene furniture */
+.scene-tag {
+  position: absolute;
+  left: var(--pad);
+  bottom: clamp(18px, 2.4vw, 32px);
+  z-index: 5;
+}
+.serif {
+  font-family: var(--serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
+}
+.serif em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+/* masked line: the inner span rises out of an overflow-hidden parent */
+.mask {
+  display: block;
+  overflow: hidden;
+  padding: 0.08em 0 0.12em;
+  margin: -0.08em 0 -0.12em;
+}
+.mask > span {
+  display: block;
+  will-change: transform;
+}
+
+/* ───────── cursor ───────── */
+html.has-cursor,
+html.has-cursor a,
+html.has-cursor button,
+html.has-cursor [data-cursor] {
+  cursor: none;
+}
+.cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.cursor.is-visible {
+  opacity: 1;
+}
+.cursor__dot,
+.cursor__pill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transition:
+    transform 0.6s var(--ease-expo),
+    opacity 0.4s ease;
+}
+.cursor__dot {
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  border-radius: 50%;
+  background: var(--fg);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--bg) 55%, transparent);
+}
+.cursor__pill {
+  padding: 9px 15px 8px;
+  border-radius: 999px;
+  background: var(--fg);
+  color: var(--bg);
+  font-family: var(--sans);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1;
+  transform: translate(-50%, -50%) scale(0.2);
+  opacity: 0;
+}
+.cursor.has-label .cursor__dot {
+  transform: scale(0);
+}
+.cursor.has-label .cursor__pill {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+.cursor.is-down .cursor__dot {
+  transform: scale(0.6);
+}
+.cursor.has-label.is-down .cursor__pill {
+  transform: translate(-50%, -50%) scale(0.9);
+}
+
+/* ───────── nav index ───────── */
+.nav__index {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  white-space: pre;
+  pointer-events: none;
+}
+.nav__roll {
+  display: inline-flex;
+  overflow: hidden;
+  color: var(--fg);
+}
+.nav__roll-in {
+  display: inline-block;
+}
+@media (max-width: 760px) {
+  .nav__name {
+    display: none;
+  }
+}

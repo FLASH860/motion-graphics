@@ -3,6 +3,7 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import heroSrc from '@assets/processed/me-front-hero.webp'
 import { reducedMotion } from '@/lib/scroll'
+import { SKIP_INTRO, dwellTrigger } from '@/lib/scene'
 
 const Chars = ({ text }: { text: string }) => (
   <>
@@ -65,17 +66,15 @@ export default function Hero({ play }: { play: boolean }) {
         .to('.hero__word--front .char__in', { yPercent: 0, duration: 2, stagger: 0.055 }, 1.35)
         .to('.hero__meta > *', { autoAlpha: 1, y: 0, duration: 1.8, stagger: 0.14 }, 2.1)
 
-      // scroll parallax: far plane lags, near plane leads, the portrait pushes in slightly
+      // The hero is pinned, so scroll becomes a slow dolly-in: each plane scales by its depth
+      // (far barely moves, near rushes past), through the dwell and on under the next rectangle.
       gsap
-        .timeline({
-          defaults: { ease: 'none' },
-          scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: 0.6 },
-        })
-        .to('.hero__plane--back', { yPercent: 26 }, 0)
-        .to('.hero__plane--glow', { yPercent: 18 }, 0)
-        .to('.hero__plane--figure', { yPercent: 9, scale: 1.05 }, 0)
-        .to('.hero__plane--front', { yPercent: -10 }, 0)
-        .to('.hero__meta', { yPercent: -120, autoAlpha: 0 }, 0)
+        .timeline({ defaults: { ease: 'none' }, scrollTrigger: dwellTrigger(el, 100) })
+        .to('.hero__plane--back', { scale: 1.05, yPercent: -3 }, 0)
+        .to('.hero__plane--glow', { scale: 1.2 }, 0)
+        .to('.hero__plane--figure', { scale: 1.13, yPercent: 2 }, 0)
+        .to('.hero__plane--front', { scale: 1.1, yPercent: 7 }, 0)
+        .to('.hero__meta', { autoAlpha: 0, duration: 0.3 }, 0)
 
       // pointer drift, fine pointers only
       if (window.matchMedia('(pointer: fine)').matches) {
@@ -111,7 +110,8 @@ export default function Hero({ play }: { play: boolean }) {
 
   useEffect(() => {
     if (!play) return
-    entrance.current?.play()
+    if (SKIP_INTRO) entrance.current?.progress(1)
+    else entrance.current?.play()
     ScrollTrigger.refresh()
   }, [play])
 
