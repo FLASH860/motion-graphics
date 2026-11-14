@@ -2,6 +2,38 @@
 
 Decisions and open questions, newest first.
 
+## Revision 3: the real cursor bug, Reel position, livelier Crystal, Tempo
+
+Eleven scenes now: Arrival, Passage, Obsession, Anatomy, Flow, Movement, Reel, Spiral, Crystal,
+**Tempo**, Exit.
+
+- **Cursor, root cause.** The cursor element's `is-visible` class was added by hand from pointer
+  events, but React also owned that element's `className` (for the label state). Every time the
+  label changed, which is every time the pointer crossed anything interactive, React rewrote the
+  class list and wiped `is-visible`. The previous fix treated a symptom. Now the hand-managed
+  classes sit on an outer element React never touches, and the label class is on an inner one.
+- **Cursor during the theme change.** The View Transition's snapshot layers swallowed pointer
+  events and baked the cursor into the old snapshot. Fixed with `::view-transition {
+  pointer-events: none }` and a `view-transition-name` on the cursor so it has its own live
+  layer above the ink. The switch also has a proper label now ("Light" / "Dark").
+- **Reel sitting low.** Could not be reproduced in headless Chrome (scrolling in, scrolling back,
+  resizing, toggling theme all ended at y = 0). The only mechanism that could leave it low was
+  the 14% upward slide on the `rise` transition, so that slide is gone: the scene is already in
+  place and only the rising edge moves. The clip is also forced open on leaving the transition.
+  If it still looks low on a real screen, the cause is something else and needs a screenshot.
+- **Crystal** was too still. Now: light pools swing roughly twice as far and twice as fast,
+  the crystals tumble in depth, the word behind the glass scrolls past continuously, two glass
+  lenses cross the frame, and the slab floats.
+- **10 Tempo** (new). Sister film to Flow, 20 s loop. Shader: five ribbons of light; on every
+  beat a ripple runs out from the centre and the ribbons step round a three-colour ramp, so the
+  picture cuts with the type. Type: five beats, each entering and leaving differently (rows from
+  opposite sides, arrival from depth, a spinning ticker of easing names, letters one by one, the
+  signature; exits through the camera, apart, down, dissolved).
+- **Measured** (headless Chrome, RTX 3050, 1440x810, this run capped at 60 Hz): every scene
+  averaged 16.7 to 17.8 ms, so a steady 60 fps, with one or two long frames (up to about 130 ms)
+  when Reel and Spiral first appear.
+- **Open**: Reel offset unconfirmed as above; none of the films have been watched by a person.
+
 ## Revision 2: cursor fix, Flow page, cyberpunk spiral, watch colours
 
 The site is now ten scenes: Arrival, Passage, Obsession, Anatomy, **Flow**, Movement, Reel,

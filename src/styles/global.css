@@ -150,6 +150,22 @@ img {
 .ink-transition::view-transition-old(root) {
   z-index: 1;
 }
+/* While the ink spreads, the page is drawn by these snapshot layers. Without the next two rules
+   they swallow pointer events (the cursor froze) and the cursor was baked into the old snapshot
+   (it vanished under the ink). So: let events through, and lift the cursor into its own layer. */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-group(cursor) {
+  animation: none;
+  z-index: 10;
+}
+::view-transition-old(cursor) {
+  display: none;
+}
+::view-transition-new(cursor) {
+  animation: none;
+}
 .ink-transition::view-transition-new(root) {
   z-index: 2;
   -webkit-mask-image: var(--ink-sheet);

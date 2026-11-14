@@ -36,6 +36,7 @@ export default function ThemeToggle() {
       role="switch"
       aria-checked={light}
       aria-label="Light theme"
+      data-cursor={light ? 'Dark' : 'Light'}
       className="toggle"
       onClick={() => toggleTheme(btn.current)}
       whileTap={{ scale: 0.96 }}

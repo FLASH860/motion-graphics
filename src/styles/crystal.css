@@ -78,9 +78,9 @@
 /* a word behind the glass, so there is something for it to bend */
 .cry__word {
   position: absolute;
-  left: 50%;
+  left: 0;
   top: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateY(-50%);
   font-family: var(--serif);
   font-size: min(25vw, 56svh);
   line-height: 0.8;
@@ -88,6 +88,36 @@
   white-space: nowrap;
   color: var(--fg);
   opacity: 0.9;
+}
+.cry__word > span {
+  display: inline-block;
+  will-change: transform;
+}
+/* lenses: small discs of clear glass that drift across and magnify the light behind them */
+.cry__lens {
+  position: absolute;
+  left: 0;
+  border-radius: 50%;
+  border: 1px solid var(--glass-edge);
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.04) 55%, rgba(255, 255, 255, 0.12));
+  -webkit-backdrop-filter: blur(5px) saturate(1.9) brightness(1.2);
+  backdrop-filter: blur(5px) saturate(1.9) brightness(1.2);
+  box-shadow: inset 0 1px 0 var(--glass-hi), inset 0 -8px 16px rgba(255, 255, 255, 0.08);
+  will-change: transform;
+  pointer-events: none;
+}
+.cry__lens--a {
+  top: 20%;
+  width: clamp(70px, 9vw, 140px);
+  aspect-ratio: 1;
+}
+.cry__lens--b {
+  top: 68%;
+  width: clamp(44px, 5vw, 84px);
+  aspect-ratio: 1;
+}
+.cry__float {
+  will-change: transform;
 }
 
 /* ── glass ── */
@@ -188,6 +218,7 @@
 
 /* ── cut crystals: one refracting outline, four lit facets ── */
 .cry__gem {
+  transform-style: preserve-3d;
   position: absolute;
   width: var(--g);
   aspect-ratio: 1 / 1.16;

@@ -49,7 +49,8 @@ export default function Cursor() {
     }
     // hide only when the pointer really leaves the window (relatedTarget is null then)
     const onLeave = (e: MouseEvent) => {
-      if (e.relatedTarget) return
+      // (the theme transition's snapshot layers fire a false "left the window": ignore it)
+      if (e.relatedTarget || document.documentElement.classList.contains('ink-transition')) return
       shown = false
       el.classList.remove('is-visible')
     }
@@ -79,9 +80,14 @@ export default function Cursor() {
 
   if (!enabled) return null
   return (
-    <div className={`cursor${label ? ' has-label' : ''}`} ref={root} aria-hidden>
-      <span className="cursor__dot" />
-      <span className="cursor__pill">{label || last.current}</span>
+    // The outer element's classes (is-visible, is-down) are set by hand from pointer events, so
+    // React must never own its className: a re-render would wipe them and hide the cursor.
+    // The label state lives on the inner element instead.
+    <div className="cursor" ref={root} aria-hidden>
+      <div className={`cursor__in${label ? ' has-label' : ''}`}>
+        <span className="cursor__dot" />
+        <span className="cursor__pill">{label || last.current}</span>
+      </div>
     </div>
   )
 }

@@ -95,10 +95,9 @@ export default function Scene({ index, name, dwell = 0, enter = 'rect', first, l
           end: () => `+=${TRANSITION * unit()}`,
           scrub: true,
           invalidateOnRefresh: true,
-          onUpdate:
-            enter === 'rect'
-              ? undefined
-              : (self) => (pin.style.clipPath = clipFor(enter, self.progress, pin.offsetWidth, pin.offsetHeight)),
+          onUpdate: enter === 'rect' ? undefined : (self) => (pin.style.clipPath = clipFor(enter, self.progress, pin.offsetWidth, pin.offsetHeight)),
+          // belt and braces: once past the transition the scene is fully open, whatever the last scrub frame was
+          onLeave: enter === 'rect' ? undefined : () => (pin.style.clipPath = 'none'),
         },
       })
 
@@ -110,7 +109,9 @@ export default function Scene({ index, name, dwell = 0, enter = 'rect', first, l
           // the incoming scene settles back as it opens, like a lens pulling focus
           .fromTo(body, { scale: 1.22 }, { scale: 1, duration: 1, ease: 'power2.out' }, 0)
       } else if (enter === 'rise') {
-        tl.fromTo(body, { yPercent: 14 }, { yPercent: 0, duration: 1, ease: 'power2.out' }, 0)
+        // the rising edge is the whole move: the scene itself is already in its final place
+        // underneath, so it can never be left sitting low
+        tl.to({}, { duration: 1 }, 0)
       } else {
         tl.fromTo(body, { scale: 1.1 }, { scale: 1, duration: 1, ease: 'power2.out' }, 0)
       }

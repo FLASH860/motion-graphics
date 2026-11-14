@@ -33,20 +33,28 @@ export default function Crystal() {
     const ctx = gsap.context(() => {
       // ── ambient: pools of light and floating crystals, each on its own slow orbit ──
       const ambient = gsap.timeline({ paused: true })
+      // the light travels: each pool swings wide across the frame, out of step with the others
       gsap.utils.toArray<HTMLElement>('.cry__pool', el).forEach((pool, i) => {
-        const dx = [22, -26, 18, -16][i % 4]
-        const dy = [-16, 14, 20, -22][i % 4]
+        const dx = [58, -64, 46, -52][i % 4]
+        const dy = [-34, 30, 40, -44][i % 4]
         ambient.add(
-          gsap.fromTo(pool, { xPercent: -dx, yPercent: -dy, scale: 0.9 }, { xPercent: dx, yPercent: dy, scale: 1.15, duration: 7.5 + i * 1.25, ease: 'sine.inOut', repeat: -1, yoyo: true }),
+          gsap.fromTo(pool, { xPercent: -dx, yPercent: -dy, scale: 0.8 }, { xPercent: dx, yPercent: dy, scale: 1.3, duration: 4.2 + i * 0.9, ease: 'sine.inOut', repeat: -1, yoyo: true }),
           0,
         )
       })
+      // the crystals tumble: they turn in depth as well as bob, so their facets keep re-lighting
       gsap.utils.toArray<HTMLElement>('.cry__gem', el).forEach((gem, i) => {
-        ambient.add(
-          gsap.fromTo(gem, { y: -14, rotate: -5 + i * 2 }, { y: 14, rotate: 5 - i * 3, duration: 5 + i * 1.5, ease: 'sine.inOut', repeat: -1, yoyo: true }),
-          0,
-        )
+        const dir = i % 2 ? -1 : 1
+        ambient.add(gsap.fromTo(gem, { y: -30 * dir, x: -18 * dir }, { y: 30 * dir, x: 18 * dir, duration: 3.6 + i * 0.9, ease: 'sine.inOut', repeat: -1, yoyo: true }), 0)
+        ambient.add(gsap.fromTo(gem, { rotateY: -42 * dir, rotate: -14 * dir }, { rotateY: 42 * dir, rotate: 14 * dir, duration: 5.2 + i * 1.1, ease: 'sine.inOut', repeat: -1, yoyo: true }), 0)
       })
+      // the word behind the glass never stops passing
+      ambient.add(gsap.fromTo('.cry__word > span', { xPercent: 0 }, { xPercent: -50, duration: 22, ease: 'none', repeat: -1 }), 0)
+      // two lenses cross the frame, bending whatever they pass over
+      ambient.add(gsap.fromTo('.cry__lens--a', { x: '-20vw', y: '8vh' }, { x: '120vw', y: '-10vh', duration: 11, ease: 'none', repeat: -1 }), 0)
+      ambient.add(gsap.fromTo('.cry__lens--b', { x: '118vw', y: '-6vh' }, { x: '-18vw', y: '12vh', duration: 15, ease: 'none', repeat: -1 }), 0)
+      // and the slab itself floats
+      ambient.add(gsap.fromTo('.cry__float', { y: -12, rotate: -0.7 }, { y: 12, rotate: 0.7, duration: 4.4, ease: 'sine.inOut', repeat: -1, yoyo: true }), 0)
 
       // ── the 15s line cycle ──
       const cycle = gsap.timeline({ paused: true, repeat: -1, defaults: { ease: 'expo.out' } })
@@ -107,7 +115,9 @@ export default function Crystal() {
         <span className="cry__pool cry__pool--b" />
         <span className="cry__pool cry__pool--c" />
         <span className="cry__pool cry__pool--d" />
-        <p className="cry__word">CLARITY</p>
+        <p className="cry__word">
+          <span>CLARITY — CLARITY — CLARITY — CLARITY — </span>
+        </p>
       </div>
 
       {/* glass */}
@@ -119,6 +129,7 @@ export default function Crystal() {
           <i className="f4" />
         </span>
 
+        <div className="cry__float">
         <div className="cry__slab">
           <span className="cry__glint" aria-hidden />
           <p className="caps cry__label">Glass — nothing but light and blur</p>
@@ -155,6 +166,11 @@ export default function Crystal() {
             </div>
           </div>
         </div>
+
+        </div>
+
+        <span className="cry__lens cry__lens--a" aria-hidden />
+        <span className="cry__lens cry__lens--b" aria-hidden />
 
         <span className="cry__gem cry__gem--b" aria-hidden>
           <i className="f1" />

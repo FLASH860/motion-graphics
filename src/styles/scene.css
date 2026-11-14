@@ -83,6 +83,8 @@ html.has-cursor [data-cursor] {
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.4s ease;
+  /* its own layer during the theme transition, so it stays live and on top of the ink */
+  view-transition-name: cursor;
 }
 .cursor.is-visible {
   opacity: 1;
@@ -123,17 +125,17 @@ html.has-cursor [data-cursor] {
   transform: translate(-50%, -50%) scale(0.2);
   opacity: 0;
 }
-.cursor.has-label .cursor__dot {
+.cursor .has-label .cursor__dot {
   transform: scale(0);
 }
-.cursor.has-label .cursor__pill {
+.cursor .has-label .cursor__pill {
   transform: translate(-50%, -50%) scale(1);
   opacity: 1;
 }
 .cursor.is-down .cursor__dot {
   transform: scale(0.6);
 }
-.cursor.has-label.is-down .cursor__pill {
+.cursor.is-down .has-label .cursor__pill {
   transform: translate(-50%, -50%) scale(0.9);
 }
 

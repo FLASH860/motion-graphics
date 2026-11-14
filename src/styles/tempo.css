@@ -1,0 +1,160 @@
+/* ───────── 10 Tempo: ribbons of light, and type that never sits still ───────── */
+.tempo {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+.tempo__picture {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.tempo.is-flat .tempo__picture {
+  display: none;
+}
+.tempo.is-flat {
+  background: linear-gradient(170deg, var(--bg), color-mix(in srgb, var(--accent) 35%, var(--bg)) 50%, var(--bg));
+}
+
+.tempo__stage {
+  position: absolute;
+  inset: 0;
+  color: var(--fg);
+}
+.tempo__beatbox {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  visibility: hidden;
+  overflow: hidden;
+}
+.tempo__inner {
+  display: grid;
+  justify-items: center;
+  gap: clamp(4px, 1vw, 16px);
+  text-align: center;
+  will-change: transform, opacity, filter;
+}
+.tempo__row {
+  font-size: min(15vw, 28svh);
+  line-height: 0.84;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  will-change: transform;
+}
+.tempo__row--small {
+  font-size: min(6vw, 11svh);
+  letter-spacing: 0.08em;
+}
+.tempo__em {
+  font-style: italic;
+  color: var(--accent);
+}
+.tempo__ch {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.08em 0 0.14em;
+  margin: -0.08em 0 -0.14em;
+  vertical-align: top;
+}
+.tempo__ch > span {
+  display: inline-block;
+  will-change: transform, opacity, filter;
+}
+
+/* the ticker: a one-line window onto a tall column of words */
+.tempo__window {
+  height: 1em;
+  overflow: hidden;
+  font-size: min(15vw, 28svh);
+  line-height: 1;
+}
+.tempo__reel {
+  display: grid;
+  will-change: transform;
+}
+.tempo__reel span {
+  display: block;
+  height: 1em;
+  white-space: nowrap;
+}
+
+/* signature */
+.tempo__mark {
+  display: flex;
+  overflow: hidden;
+  font-size: min(26vmin, 28vw);
+  line-height: 1;
+  padding: 0.04em 0;
+}
+.tempo__mark > span {
+  display: block;
+}
+.tempo__dash {
+  color: var(--accent);
+  margin: 0 0.08em;
+}
+.tempo__rule {
+  display: block;
+  width: min(40vmin, 62vw);
+  height: 1px;
+  background: var(--accent);
+}
+.tempo__small {
+  overflow: hidden;
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  padding-left: 0.5em;
+}
+.tempo__small > span {
+  display: block;
+}
+
+/* transport */
+.tempo__hud {
+  position: absolute;
+  right: var(--pad);
+  bottom: clamp(18px, 2.4vw, 32px);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.tempo .scene-tag {
+  color: var(--fg);
+}
+.tempo__beats {
+  display: flex;
+  gap: 6px;
+}
+.tempo__beat {
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--fg) 28%, transparent);
+  transition: background-color 0.4s ease;
+}
+.tempo__beat.is-on {
+  background: var(--fg);
+}
+
+@media (max-width: 760px) {
+  .tempo__row,
+  .tempo__window {
+    font-size: 19vw;
+  }
+  .tempo__row--small {
+    font-size: 8vw;
+  }
+  .tempo__hud > span:first-child {
+    display: none;
+  }
+}

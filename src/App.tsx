@@ -12,6 +12,7 @@ import Movement, { preloadWatch } from '@/sections/Movement'
 import Reel from '@/sections/Reel'
 import Spiral from '@/sections/Spiral'
 import Crystal from '@/sections/Crystal'
+import Tempo from '@/sections/Tempo'
 import Exit from '@/sections/Exit'
 import { initScroll, lockScroll } from '@/lib/scroll'
 import { SKIP_INTRO } from '@/lib/scene'
@@ -62,7 +63,10 @@ export default function App() {
         <Scene index={9} name="Crystal" dwell={130} enter="blade">
           <Crystal />
         </Scene>
-        <Scene index={10} name="Exit" dwell={110} enter="rise" last>
+        <Scene index={10} name="Tempo" dwell={150} enter="columns">
+          <Tempo />
+        </Scene>
+        <Scene index={11} name="Exit" dwell={110} enter="rise" last>
           <Exit />
         </Scene>
       </main>
