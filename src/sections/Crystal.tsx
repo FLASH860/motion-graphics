@@ -4,7 +4,7 @@ import { onSceneShown } from '@/lib/scene'
 import { reducedMotion } from '@/lib/scroll'
 
 /**
- * 08 — Crystal. A second film, also on its own clock: fifteen seconds, looping, no scroll.
+ * 09 — Crystal. Another film, also on its own clock: fifteen seconds, looping, no scroll.
  * Slow pools of coloured light drift behind a slab of glass and three cut crystals. All the
  * interest comes from what the glass does to the light passing behind it.
  *
@@ -170,7 +170,7 @@ export default function Crystal() {
         </span>
       </div>
 
-      <p className="scene-tag caps">N° 08 — Crystal</p>
+      <p className="scene-tag caps">N° 09 — Crystal</p>
     </section>
   )
 }

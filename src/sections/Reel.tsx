@@ -4,7 +4,7 @@ import { onSceneShown } from '@/lib/scene'
 import { reducedMotion } from '@/lib/scroll'
 
 /**
- * 06 — Reel. A fourteen-second motion-design film, built in code, that plays on a loop by
+ * 07 — Reel. A fourteen-second motion-design film, built in code, that plays on a loop by
  * itself. Scroll has no say in it: it starts when the scene arrives and keeps going.
  *
  * Five shots, cut together with hard wipes like a title sequence:
@@ -205,14 +205,14 @@ export default function Reel() {
 
       <div className="reel__hud caps" aria-hidden>
         <span className="reel__rec">
-          <i /> Reel 01
+          <i /> Film 02 — Reel
         </span>
         <span className="reel__progress">
           <span />
         </span>
         <span className="reel__code">00:00:00</span>
       </div>
-      <p className="scene-tag caps">N° 06 — Reel</p>
+      <p className="scene-tag caps">N° 07 — Reel</p>
     </section>
   )
 }

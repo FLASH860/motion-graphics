@@ -2,6 +2,39 @@
 
 Decisions and open questions, newest first.
 
+## Revision 2: cursor fix, Flow page, cyberpunk spiral, watch colours
+
+The site is now ten scenes: Arrival, Passage, Obsession, Anatomy, **Flow**, Movement, Reel,
+Spiral, Crystal, Exit. Flow was placed fifth so self-playing and scroll-driven scenes alternate
+through the back half; everything after it moved down one number.
+
+- **Cursor bug.** It hid on a `pointerleave` and only came back on `pointerenter`, which does
+  not fire reliably, so one stray leave lost it for good. It now hides only when the pointer
+  truly leaves the window and comes back on any movement. It is a light dot in a dark ring, so
+  it reads on any colour. (A difference blend was tried and dropped: it cost frames over glass.)
+- **Tools.** The no-WebGL / no-outside-tools rule was lifted. Used: one more small WebGL
+  shader (Flow) and a 2D canvas (Spiral trunk). Not used: generated or stock video, or motion
+  templates. Everything is still code, so it stays sharp, follows the theme, and adds no
+  download weight or licences. Open to swapping in real footage if wanted.
+- **05 Flow** (new). Fifteen-second loop. A fragment shader of moving silk at half resolution,
+  with three lines that rack into focus (blur to sharp) and leave.
+- **06 Movement.** The watch keeps its original colours in both themes. In the light theme the
+  scene is a dark room (tokens pinned to dark values inside it); the inverted version is gone.
+- **08 Spiral**, rebuilt toward the reference. Glass cards with two-colour edges, a sunk
+  numeral, an index list bottom left. The core is a trunk of eighteen twisted cables on a
+  canvas, depth-sorted per slice so they cross properly, with pulses of light and clamps. It
+  has its own neon palette (cyan, magenta, amber, violet), which is a deliberate break from the
+  site's brass-and-bone restraint, as asked.
+- **Spiral performance.** First version ran at about 38 ms a frame. Causes, in order: large
+  blurred shadows on eight 3D cards, eight backdrop filters, per-segment trig in the canvas.
+  Now: no outer shadows (a gradient glow instead), refraction on the front card only, cable
+  positions precomputed per frame, canvas at 1x and 30 fps. About 10 ms a frame.
+- **Measured** (headless Chrome, RTX 3050, 1440x810): 7 to 8 ms average in most scenes, about
+  10 ms in Spiral and Crystal, 12 ms in the first. Single long frames remain where a scene
+  first appears (roughly 190 to 215 ms in Spiral and Crystal).
+- **Open**: the nav index is faint over the silk's mid-tones; first-appearance hitches; none of
+  this has been watched by a person in a real browser yet.
+
 ## Revision: new loader, new transitions, pages 06 to 08 replaced or added
 
 Asked for: a cooler loader, page 6 replaced, motion design that plays by itself (10 to 15 s,

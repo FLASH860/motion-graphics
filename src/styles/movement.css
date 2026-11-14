@@ -1,4 +1,4 @@
-/* ───────── 05 Movement: the watch film, scrubbed ───────── */
+/* ───────── 06 Movement: the watch film, scrubbed ───────── */
 .mov {
   position: absolute;
   inset: 0;
@@ -16,10 +16,20 @@
   /* black footage melts into the dark page */
   mix-blend-mode: lighten;
 }
-/* same film, inverted with its hues kept: a pale technical study on paper */
-:root[data-theme='light'] .mov__canvas {
-  filter: invert(1) hue-rotate(180deg) contrast(1.08);
-  mix-blend-mode: multiply;
+/* The film keeps its own colours in both themes. In the light theme this scene is a dark room:
+   the tokens are pinned to their dark values here, so everything inside follows. */
+:root[data-theme='light'] .mov {
+  color: #ece6da;
+  --bg: #0b0a09;
+  --bg-2: #131110;
+  --fg: #ece6da;
+  --muted: #8d8578;
+  --accent: #c9a26b;
+  --line: rgba(236, 230, 218, 0.16);
+}
+.mov .scene-tag,
+.mov__hud {
+  color: var(--muted);
 }
 
 .mov__title {

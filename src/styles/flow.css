@@ -1,0 +1,99 @@
+/* ───────── Flow: moving silk, and three lines that rack into focus ───────── */
+.flow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+}
+.flow__silk {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* stand-in when WebGL is unavailable */
+.flow.is-flat .flow__silk {
+  display: none;
+}
+.flow.is-flat {
+  background: radial-gradient(ellipse at 30% 20%, color-mix(in srgb, var(--accent) 40%, var(--bg)), var(--bg) 70%);
+}
+
+.flow__lines {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.flow__line {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: clamp(10px, 1.6vw, 26px);
+  visibility: hidden;
+  font-size: min(13.5vw, 26svh);
+  line-height: 0.86;
+  letter-spacing: -0.015em;
+  text-align: center;
+  color: var(--fg);
+}
+.flow__row {
+  display: flex;
+  gap: 0.24em;
+  white-space: nowrap;
+}
+.flow__row--em {
+  font-style: italic;
+  color: var(--accent);
+}
+.flow__w {
+  display: inline-block;
+  will-change: transform, opacity, filter;
+}
+.flow__rule {
+  display: block;
+  width: min(34vw, 420px);
+  height: 1px;
+  background: var(--fg);
+  opacity: 0.5;
+}
+
+.flow__hud {
+  position: absolute;
+  right: var(--pad);
+  bottom: clamp(18px, 2.4vw, 32px);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.flow .scene-tag {
+  color: var(--fg);
+}
+.flow__progress {
+  display: block;
+  width: clamp(70px, 12vw, 190px);
+  height: 1px;
+  background: color-mix(in srgb, var(--fg) 30%, transparent);
+}
+.flow__progress > span {
+  display: block;
+  height: 100%;
+  background: var(--fg);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+@media (max-width: 760px) {
+  .flow__line {
+    font-size: 19vw;
+  }
+  .flow__hud > span:first-child {
+    display: none;
+  }
+}

@@ -97,18 +97,22 @@ html.has-cursor [data-cursor] {
     opacity 0.4s ease;
 }
 .cursor__dot {
-  width: 9px;
-  height: 9px;
-  margin: -4.5px 0 0 -4.5px;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
   border-radius: 50%;
-  background: var(--fg);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--bg) 55%, transparent);
+  /* a light dot inside a dark ring inside a light hairline: readable on any colour */
+  background: #fff;
+  box-shadow:
+    0 0 0 1.5px rgba(10, 9, 8, 0.75),
+    0 0 0 2.5px rgba(255, 255, 255, 0.35);
 }
 .cursor__pill {
   padding: 9px 15px 8px;
   border-radius: 999px;
-  background: var(--fg);
-  color: var(--bg);
+  background: #fff;
+  color: #0b0a09;
+  box-shadow: 0 0 0 1.5px rgba(10, 9, 8, 0.6);
   font-family: var(--sans);
   font-size: 0.625rem;
   font-weight: 600;

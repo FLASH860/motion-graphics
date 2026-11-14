@@ -5,13 +5,12 @@ import { createSequence } from '@/lib/frames'
 import { dwellTrigger, sceneOf } from '@/lib/scene'
 
 /**
- * 05 — Movement. The watch film, scrubbed by scroll. 240 frames are drawn to one canvas
+ * 06 — Movement. The watch film, scrubbed by scroll. 240 frames are drawn to one canvas
  * (an image sequence scrubs cleaner than seeking a video, and equally well backwards); the
  * drawn frame eases toward the scroll position, which is what makes it feel weighted.
  *
- * The footage sits on pure black. In the dark theme it is blended `lighten` into the page; in
- * the light theme it is inverted (hue kept) and multiplied, so the same film becomes a pale
- * technical study on paper. No second asset.
+ * The footage sits on pure black and keeps its own colours in both themes: it is blended
+ * `lighten` into a dark page, and in the light theme this one scene stays a dark room.
  */
 const FRAMES = 240
 const W = 1280
@@ -159,7 +158,7 @@ export default function Movement() {
           <span />
         </span>
       </div>
-      <p className="scene-tag caps">N° 05 — Movement</p>
+      <p className="scene-tag caps">N° 06 — Movement</p>
     </section>
   )
 }

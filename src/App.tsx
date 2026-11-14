@@ -7,6 +7,7 @@ import Hero from '@/sections/Hero'
 import Passage from '@/sections/Passage'
 import Obsession from '@/sections/Obsession'
 import Anatomy from '@/sections/Anatomy'
+import Flow from '@/sections/Flow'
 import Movement, { preloadWatch } from '@/sections/Movement'
 import Reel from '@/sections/Reel'
 import Spiral from '@/sections/Spiral'
@@ -46,19 +47,22 @@ export default function App() {
         <Scene index={4} name="Anatomy" dwell={340}>
           <Anatomy />
         </Scene>
-        <Scene index={5} name="Movement" dwell={520}>
+        <Scene index={5} name="Flow" dwell={130} enter="blade">
+          <Flow />
+        </Scene>
+        <Scene index={6} name="Movement" dwell={520}>
           <Movement />
         </Scene>
-        <Scene index={6} name="Reel" dwell={130} enter="rise">
+        <Scene index={7} name="Reel" dwell={130} enter="rise">
           <Reel />
         </Scene>
-        <Scene index={7} name="Spiral" dwell={460} enter="columns">
+        <Scene index={8} name="Spiral" dwell={460} enter="columns">
           <Spiral />
         </Scene>
-        <Scene index={8} name="Crystal" dwell={130} enter="blade">
+        <Scene index={9} name="Crystal" dwell={130} enter="blade">
           <Crystal />
         </Scene>
-        <Scene index={9} name="Exit" dwell={110} enter="rise" last>
+        <Scene index={10} name="Exit" dwell={110} enter="rise" last>
           <Exit />
         </Scene>
       </main>

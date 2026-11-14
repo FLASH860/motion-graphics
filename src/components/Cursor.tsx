@@ -6,6 +6,7 @@ const TARGETS = '[data-cursor], a, button'
 /**
  * A small dot that trails the pointer. Over anything interactive it becomes a short label
  * (from `data-cursor`). Fine pointers only: touch devices never see it.
+ * A light dot in a dark ring, so it stays visible over any colour on the page.
  */
 export default function Cursor() {
   const root = useRef<HTMLDivElement>(null)
@@ -24,6 +25,7 @@ export default function Cursor() {
     const x = gsap.quickTo(el, 'x', { duration: 0.45, ease: 'power3.out' })
     const y = gsap.quickTo(el, 'y', { duration: 0.45, ease: 'power3.out' })
     let seen = false
+    let shown = false
     let over: Element | null = null
 
     const read = () => setLabel(over ? ((over as HTMLElement).dataset.cursor ?? 'Open') : '')
@@ -31,6 +33,10 @@ export default function Cursor() {
       if (!seen) {
         seen = true
         gsap.set(el, { x: e.clientX, y: e.clientY })
+      }
+      // any movement proves the pointer is over the page: never stay hidden after a stray leave
+      if (!shown) {
+        shown = true
         el.classList.add('is-visible')
       }
       x(e.clientX)
@@ -41,8 +47,12 @@ export default function Cursor() {
         read()
       }
     }
-    const onLeave = () => el.classList.remove('is-visible')
-    const onEnter = () => seen && el.classList.add('is-visible')
+    // hide only when the pointer really leaves the window (relatedTarget is null then)
+    const onLeave = (e: MouseEvent) => {
+      if (e.relatedTarget) return
+      shown = false
+      el.classList.remove('is-visible')
+    }
     const onDown = () => el.classList.add('is-down')
     // a click can change the label under the pointer (the theme switch), so read it again
     const onUp = () => {
@@ -53,15 +63,13 @@ export default function Cursor() {
     window.addEventListener('pointermove', onMove, { passive: true })
     window.addEventListener('pointerdown', onDown)
     window.addEventListener('pointerup', onUp)
-    document.documentElement.addEventListener('pointerleave', onLeave)
-    document.documentElement.addEventListener('pointerenter', onEnter)
+    document.addEventListener('mouseout', onLeave)
     return () => {
       document.documentElement.classList.remove('has-cursor')
       window.removeEventListener('pointermove', onMove)
       window.removeEventListener('pointerdown', onDown)
       window.removeEventListener('pointerup', onUp)
-      document.documentElement.removeEventListener('pointerleave', onLeave)
-      document.documentElement.removeEventListener('pointerenter', onEnter)
+      document.removeEventListener('mouseout', onLeave)
     }
   }, [enabled])
 
