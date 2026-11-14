@@ -3,22 +3,65 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { TRANSITION, setActiveScene } from '@/lib/scene'
 
+/**
+ * How a scene takes the screen. All four are clip-paths on the incoming pin, scrubbed to scroll,
+ * while the outgoing scene recedes into depth underneath.
+ *   rect     a point becomes a small centred rectangle, which fills the screen
+ *   rise     comes up from the bottom under a shallow arc, like a horizon
+ *   columns  seven columns climb from the floor one after another, like piano keys released
+ *   blade    a slanted edge sweeps across from the left
+ */
+export type Enter = 'rect' | 'rise' | 'columns' | 'blade'
+
 type Props = {
   index: number
   name: string
   /** svh of scroll the scene keeps for itself once it is fully open */
   dwell?: number
+  enter?: Enter
   first?: boolean
   last?: boolean
   children: ReactNode
 }
 
-/**
- * One full-screen scene. Unless it is the first, it opens over the previous scene as a small
- * centred rectangle that grows to fill the screen, scrubbed to scroll, while the previous
- * scene's body scales back into depth and darkens.
- */
-export default function Scene({ index, name, dwell = 0, first, last, children }: Props) {
+const COLUMNS = 7
+const clamp01 = (n: number) => Math.min(1, Math.max(0, n))
+const columnEase = gsap.parseEase('power3.inOut')
+const riseEase = gsap.parseEase('power2.inOut')
+const bladeEase = gsap.parseEase('power2.inOut')
+
+/** clip-path for a given transition at progress p (0 closed → 1 open), for a w×h pin */
+function clipFor(enter: Enter, p: number, w: number, h: number) {
+  if (p >= 1) return 'none'
+  if (enter === 'rise') {
+    // a very large circle whose top edge climbs the screen: reads as a gently curved horizon
+    const R = w * 1.35
+    const sag = R - Math.sqrt(R * R - (w / 2) * (w / 2)) // how far the arc's corners trail its crown
+    const top = h - riseEase(p) * (h + sag)
+    return `circle(${R.toFixed(1)}px at 50% ${(top + R).toFixed(1)}px)`
+  }
+  if (enter === 'columns') {
+    // each column starts a beat after the one before; all finish by p = 1
+    const lag = 0.085
+    const span = 1 - lag * (COLUMNS - 1)
+    const pts: string[] = []
+    for (let i = 0; i < COLUMNS; i++) {
+      const local = columnEase(clamp01((p - i * lag) / span))
+      const x0 = ((i / COLUMNS) * 100 - 0.05).toFixed(3)
+      const x1 = (((i + 1) / COLUMNS) * 100 + 0.05).toFixed(3)
+      const y = ((1 - local) * 100).toFixed(3)
+      pts.push(`${x0}% 100%`, `${x0}% ${y}%`, `${x1}% ${y}%`, `${x1}% 100%`)
+    }
+    return `polygon(${pts.join(',')})`
+  }
+  // blade
+  const slant = 34 // how far the edge leans, in % of width
+  const x = bladeEase(p) * (100 + slant)
+  return `polygon(0% 0%, ${x.toFixed(3)}% 0%, ${(x - slant).toFixed(3)}% 100%, 0% 100%)`
+}
+
+/** One full-screen scene: a tall track with a sticky pin (see lib/scene.ts for the model). */
+export default function Scene({ index, name, dwell = 0, enter = 'rect', first, last, children }: Props) {
   const track = useRef<HTMLDivElement>(null)
   const tin = first ? 0 : TRANSITION
   const tout = last ? 0 : TRANSITION
@@ -44,29 +87,39 @@ export default function Scene({ index, name, dwell = 0, first, last, children }:
       const prevBody = prev.querySelector<HTMLElement>(':scope > .scene__pin > .scene__body')!
       const prevShade = prev.querySelector<HTMLElement>(':scope > .scene__pin > .scene__shade')!
 
-      gsap
-        .timeline({
-          defaults: { ease: 'none' },
-          scrollTrigger: {
-            trigger: el,
-            start: 'top top',
-            end: () => `+=${TRANSITION * unit()}`,
-            scrub: true,
-            invalidateOnRefresh: true,
-          },
-        })
+      const tl = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: el,
+          start: 'top top',
+          end: () => `+=${TRANSITION * unit()}`,
+          scrub: true,
+          invalidateOnRefresh: true,
+          onUpdate:
+            enter === 'rect'
+              ? undefined
+              : (self) => (pin.style.clipPath = clipFor(enter, self.progress, pin.offsetWidth, pin.offsetHeight)),
+        },
+      })
+
+      if (enter === 'rect') {
         // a point becomes a small rectangle, then the rectangle takes its time filling the screen
         // (the clip-path itself lives in CSS and reads these two custom properties)
-        .fromTo(pin, { '--clip': '50%', '--clip-r': '18px' }, { '--clip': '42%', '--clip-r': '14px', duration: 0.14, ease: 'power2.out' }, 0)
-        .to(pin, { '--clip': '0%', '--clip-r': '0px', duration: 0.86, ease: 'power2.inOut' }, 0.14)
-        // the incoming scene settles back as it opens, like a lens pulling focus
-        .fromTo(body, { scale: 1.22 }, { scale: 1, duration: 1, ease: 'power2.out' }, 0)
-        // the outgoing scene recedes into depth
-        .to(prevBody, { scale: 0.8, duration: 1, ease: 'power1.inOut' }, 0)
-        .to(prevShade, { opacity: 0.62, duration: 1, ease: 'power1.in' }, 0)
+        tl.fromTo(pin, { '--clip': '50%', '--clip-r': '18px' }, { '--clip': '42%', '--clip-r': '14px', duration: 0.14, ease: 'power2.out' }, 0)
+          .to(pin, { '--clip': '0%', '--clip-r': '0px', duration: 0.86, ease: 'power2.inOut' }, 0.14)
+          // the incoming scene settles back as it opens, like a lens pulling focus
+          .fromTo(body, { scale: 1.22 }, { scale: 1, duration: 1, ease: 'power2.out' }, 0)
+      } else if (enter === 'rise') {
+        tl.fromTo(body, { yPercent: 14 }, { yPercent: 0, duration: 1, ease: 'power2.out' }, 0)
+      } else {
+        tl.fromTo(body, { scale: 1.1 }, { scale: 1, duration: 1, ease: 'power2.out' }, 0)
+      }
+
+      // the outgoing scene recedes into depth
+      tl.to(prevBody, { scale: 0.8, duration: 1, ease: 'power1.inOut' }, 0).to(prevShade, { opacity: 0.62, duration: 1, ease: 'power1.in' }, 0)
     }, el)
     return () => ctx.revert()
-  }, [first, last, index, name, dwell, tin, tout])
+  }, [first, last, index, name, dwell, tin, tout, enter])
 
   return (
     <div

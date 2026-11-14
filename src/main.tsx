@@ -10,7 +10,7 @@ import './styles/passage.css'
 import './styles/obsession.css'
 import './styles/anatomy.css'
 import './styles/movement.css'
-import './styles/principles.css'
+import './styles/reel.css'
 import './styles/exit.css'
 import App from './App'
 

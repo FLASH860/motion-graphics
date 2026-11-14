@@ -1,55 +1,80 @@
-/* ───────── preloader ───────── */
+/* ───────── preloader: a watch dial that opens like an aperture ───────── */
 .pre {
   position: fixed;
   inset: 0;
   z-index: 100;
 }
-.pre__veil,
 .pre__panel {
+  --r: min(30vmin, 36vw); /* dial radius */
   position: absolute;
   inset: 0;
-  will-change: transform;
-}
-/* the veil trails the panel by a beat: a brass edge under the lifting curtain */
-.pre__veil {
-  background: var(--accent);
-}
-.pre__panel {
   background: var(--bg);
   color: var(--fg);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: var(--pad);
+  display: grid;
+  place-items: center;
+  will-change: clip-path;
 }
 .pre__meta {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  top: var(--pad);
   display: flex;
   justify-content: space-between;
 }
+.pre__dial {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--r) * 2);
+  height: calc(var(--r) * 2);
+  margin: calc(var(--r) * -1) 0 0 calc(var(--r) * -1);
+  will-change: transform;
+}
+.pre__tick {
+  position: absolute;
+  left: calc(50% - 0.5px);
+  top: 50%;
+  width: 1px;
+  height: calc(var(--r) * 0.06);
+  background: var(--fg);
+  opacity: 0.16;
+  transform: rotate(var(--a)) translateY(calc(var(--r) * -1));
+  transform-origin: 50% 0;
+  transition: opacity 0.5s ease, background-color 0.5s ease;
+}
+.pre__tick.is-major {
+  left: calc(50% - 1px);
+  width: 2px;
+  height: calc(var(--r) * 0.11);
+}
+.pre__tick.is-on {
+  opacity: 1;
+  background: var(--accent);
+}
+.pre__hand {
+  position: absolute;
+  left: calc(50% - 0.5px);
+  bottom: 50%;
+  width: 1px;
+  height: calc(var(--r) * 0.86);
+  background: linear-gradient(to top, transparent 42%, var(--accent) 42%);
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
 .pre__num {
+  position: relative;
   overflow: hidden;
-  align-self: flex-end;
   font-family: var(--serif);
   font-weight: 300;
-  font-size: clamp(7rem, 24vw, 22rem);
-  line-height: 0.8;
+  font-size: calc(var(--r) * 0.62);
+  line-height: 0.9;
   letter-spacing: -0.03em;
   font-variant-numeric: lining-nums tabular-nums;
-  padding-top: 0.06em;
-  margin-bottom: 0.02em;
+  padding: 0.05em 0.04em 0;
 }
 .pre__num-inner {
   display: block;
-}
-.pre__bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: left center;
 }
 
 /* ───────── nav ───────── */
@@ -67,6 +92,24 @@
 }
 .nav > * {
   pointer-events: auto;
+}
+/* Mark and index invert against whatever passes under them (the film cuts between palettes).
+   The switch lives in its own fixed layer so the blend never touches its shadows. */
+.nav--blend {
+  mix-blend-mode: difference;
+  color: #e9e3d7;
+}
+.nav--blend .caps,
+.nav--blend .nav__roll,
+.nav--blend .nav__mark span {
+  color: inherit;
+}
+.nav--blend .nav__total {
+  opacity: 0.6;
+}
+.nav--switch {
+  justify-content: flex-end;
+  z-index: 51;
 }
 .nav__mark {
   font-family: var(--serif);

@@ -6,15 +6,16 @@ import { reducedMotion } from '@/lib/scroll'
 import { SKIP_INTRO, useActiveScene } from '@/lib/scene'
 
 const EASE = [0.16, 1, 0.3, 1] as const
-export const SCENE_COUNT = 7
+export const SCENE_COUNT = 9
 
 export default function Nav({ play }: { play: boolean }) {
   const root = useRef<HTMLElement>(null)
+  const sw = useRef<HTMLDivElement>(null)
   const scene = useActiveScene()
 
   useEffect(() => {
     if (!play || reducedMotion() || SKIP_INTRO) return
-    const tween = gsap.from(root.current!.children, {
+    const tween = gsap.from([...root.current!.children, ...sw.current!.children], {
       autoAlpha: 0,
       y: -14,
       duration: 1.6,
@@ -30,7 +31,8 @@ export default function Nav({ play }: { play: boolean }) {
   const num = String(scene.index).padStart(2, '0')
 
   return (
-    <header className="nav" ref={root} style={{ visibility: play ? 'visible' : 'hidden' }}>
+    <>
+    <header className="nav nav--blend" ref={root} style={{ visibility: play ? 'visible' : 'hidden' }}>
       <a className="nav__mark" href="#top" data-cursor="Top" aria-label="Kanishq Surendran, back to top">
         K<span>—</span>S
       </a>
@@ -55,7 +57,10 @@ export default function Nav({ play }: { play: boolean }) {
         <span className="nav__total"> / {String(SCENE_COUNT).padStart(2, '0')}</span>
       </p>
 
-      <ThemeToggle />
     </header>
+    <div className="nav nav--switch" ref={sw} style={{ visibility: play ? 'visible' : 'hidden' }}>
+      <ThemeToggle />
+    </div>
+    </>
   )
 }

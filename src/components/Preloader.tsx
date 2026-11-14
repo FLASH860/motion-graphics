@@ -1,24 +1,34 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type CSSProperties } from 'react'
 import gsap from 'gsap'
 import heroSrc from '@assets/processed/me-front-hero.webp'
 import { reducedMotion } from '@/lib/scroll'
 
 type Props = { onReveal: () => void; onDone: () => void }
 
-const MIN_SECONDS = 2.4 // the count never runs faster than this, however quick the network
+const MIN_SECONDS = 2.8 // the count never runs faster than this, however quick the network
 const FAILSAFE_MS = 9000
+const TICKS = 60
+const HOLE_POINTS = 56
 
 /**
- * 0–100 counter tied to real loading (fonts + hero portrait), then a two-layer curtain lift.
- * `onReveal` fires as the curtain starts moving so the hero entrance plays underneath it.
+ * The loader is a watch dial. Sixty ticks light one by one as real loading progresses (fonts +
+ * hero portrait), a hand sweeps with them, and the count sits in the centre. At 100 the dial
+ * becomes an aperture: a circular hole opens from its centre and the tick ring rides the edge
+ * of that hole outward until it has left the screen, revealing the page underneath.
+ *
+ * The hole is a clip-path polygon with an even-odd fill (outer rectangle + inner circle),
+ * rebuilt per frame, so it stays within transform / opacity / clip-path.
  */
 export default function Preloader({ onReveal, onDone }: Props) {
   const root = useRef<HTMLDivElement>(null)
   const num = useRef<HTMLSpanElement>(null)
-  const bar = useRef<HTMLSpanElement>(null)
 
   useEffect(() => {
     const el = root.current!
+    const panel = el.querySelector<HTMLElement>('.pre__panel')!
+    const dial = el.querySelector<HTMLElement>('.pre__dial')!
+    const hand = el.querySelector<HTMLElement>('.pre__hand')!
+    const ticks = Array.from(el.querySelectorAll<HTMLElement>('.pre__tick'))
     const reduced = reducedMotion()
     let loaded = 0
     const total = 2
@@ -32,7 +42,19 @@ export default function Preloader({ onReveal, onDone }: Props) {
 
     let value = 0
     let shown = -1
+    let lit = 0
     let finished = false
+
+    const hole = (r: number) => {
+      const cx = window.innerWidth / 2
+      const cy = window.innerHeight / 2
+      let pts = '0px 0px, 100% 0px, 100% 100%, 0px 100%, 0px 0px'
+      for (let i = 0; i <= HOLE_POINTS; i++) {
+        const a = (i / HOLE_POINTS) * Math.PI * 2
+        pts += `, ${(cx + Math.cos(a) * r).toFixed(1)}px ${(cy + Math.sin(a) * r).toFixed(1)}px`
+      }
+      panel.style.clipPath = `polygon(evenodd, ${pts})`
+    }
 
     const exit = () => {
       if (reduced) {
@@ -40,13 +62,31 @@ export default function Preloader({ onReveal, onDone }: Props) {
         gsap.to(el, { autoAlpha: 0, duration: 0.4, onComplete: onDone })
         return
       }
+      const dialR = dial.offsetWidth / 2 || Math.min(window.innerWidth, window.innerHeight) * 0.3
+      const reach = Math.hypot(window.innerWidth, window.innerHeight) / 2 + 40
+      const lens = { r: 0 }
       gsap
-        .timeline({ defaults: { ease: 'expo.inOut' }, onComplete: onDone })
-        .to('.pre__num-inner', { yPercent: -105, duration: 1.1, ease: 'power4.inOut' }, 0.35)
-        .to('.pre__meta, .pre__bar', { autoAlpha: 0, duration: 0.6, ease: 'power2.out' }, 0.45)
-        .add(onReveal, 1.0)
-        .to('.pre__panel', { yPercent: -100, duration: 1.6 }, 1.0)
-        .to('.pre__veil', { yPercent: -100, duration: 1.6 }, 1.16)
+        .timeline({ onComplete: onDone })
+        .to('.pre__num-inner', { yPercent: -110, duration: 1.0, ease: 'power4.inOut' }, 0.3)
+        .to('.pre__meta', { autoAlpha: 0, duration: 0.6, ease: 'power2.out' }, 0.4)
+        .to(hand, { autoAlpha: 0, duration: 0.5, ease: 'power2.out' }, 0.5)
+        // a breath in before it opens
+        .to(dial, { scale: 0.94, duration: 0.7, ease: 'power2.inOut' }, 0.45)
+        .add(onReveal, 1.05)
+        .to(
+          lens,
+          {
+            r: reach,
+            duration: 2.0,
+            ease: 'expo.inOut',
+            onUpdate: () => {
+              hole(lens.r)
+              // once the hole reaches the ticks, they ride its edge outward
+              gsap.set(dial, { scale: Math.max(0.94, (lens.r / dialR) * 1.06) })
+            },
+          },
+          1.05,
+        )
     }
 
     const tick = (_t: number, deltaMs: number) => {
@@ -58,9 +98,11 @@ export default function Preloader({ onReveal, onDone }: Props) {
       const n = Math.floor(value)
       if (n !== shown) {
         shown = n
-        if (num.current) num.current.textContent = String(n)
-        if (bar.current) bar.current.style.transform = `scaleX(${n / 100})`
+        if (num.current) num.current.textContent = String(n).padStart(2, '0')
+        const want = Math.round((n / 100) * TICKS)
+        for (; lit < want; lit++) ticks[lit].classList.add('is-on')
       }
+      hand.style.transform = `rotate(${(value * 3.6).toFixed(2)}deg)`
       if (value >= 100) {
         finished = true
         gsap.ticker.remove(tick)
@@ -80,18 +122,24 @@ export default function Preloader({ onReveal, onDone }: Props) {
 
   return (
     <div className="pre" ref={root} role="status" aria-label="Loading">
-      <div className="pre__veil" />
       <div className="pre__panel">
         <div className="pre__meta caps">
           <span>Kanishq Surendran</span>
           <span>MMXXVI</span>
         </div>
+
+        <div className="pre__dial" aria-hidden>
+          {Array.from({ length: TICKS }, (_, i) => (
+            <i className={`pre__tick${i % 5 ? '' : ' is-major'}`} key={i} style={{ '--a': `${i * 6}deg` } as CSSProperties} />
+          ))}
+          <span className="pre__hand" />
+        </div>
+
         <div className="pre__num" aria-hidden>
           <span className="pre__num-inner">
-            <span ref={num}>0</span>
+            <span ref={num}>00</span>
           </span>
         </div>
-        <span className="pre__bar" ref={bar} />
       </div>
     </div>
   )
