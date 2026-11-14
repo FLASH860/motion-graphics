@@ -5,6 +5,7 @@ import Cursor from '@/components/Cursor'
 import Scene from '@/components/Scene'
 import Hero from '@/sections/Hero'
 import Passage from '@/sections/Passage'
+import Obsession from '@/sections/Obsession'
 import { initScroll, lockScroll } from '@/lib/scroll'
 import { SKIP_INTRO } from '@/lib/scene'
 
@@ -24,8 +25,11 @@ export default function App() {
         <Scene index={1} name="Arrival" dwell={40} first>
           <Hero play={revealed} />
         </Scene>
-        <Scene index={2} name="Passage" dwell={420} last>
+        <Scene index={2} name="Passage" dwell={420}>
           <Passage />
+        </Scene>
+        <Scene index={3} name="Obsession" dwell={90} last>
+          <Obsession />
         </Scene>
       </main>
       <Cursor />

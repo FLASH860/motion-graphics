@@ -1,0 +1,80 @@
+/* ───────── 03 Obsession: a ring of type in CSS 3D ───────── */
+.obs {
+  --r: min(41vw, 64svh); /* ring radius */
+  --n: 36; /* letters on the ring (keep in step with RING in Obsession.tsx) */
+  --arc: calc(var(--r) * 6.2832 / var(--n));
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+}
+.obs__stage {
+  position: absolute;
+  inset: 0;
+  perspective: 1500px;
+  perspective-origin: 50% 46%;
+  pointer-events: none;
+}
+.obs__tilt,
+.obs__spin {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.obs__tilt {
+  transform: rotateX(-21deg) rotateZ(-7deg);
+}
+/* page-coloured veil on the ring's axis: everything behind it (the far half) reads fainter */
+.obs__veil {
+  position: absolute;
+  left: -150vmax;
+  top: -150vmax;
+  width: 300vmax;
+  height: 300vmax;
+  background: var(--bg);
+  opacity: 0.84;
+}
+.obs__char {
+  position: absolute;
+  left: calc(var(--arc) / -2);
+  top: calc(var(--arc) * -0.62);
+  width: var(--arc);
+  text-align: center;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: calc(var(--arc) * 1.32);
+  line-height: 1;
+  color: var(--fg);
+  transform: rotateY(var(--a)) translateZ(var(--r));
+}
+
+.obs__copy {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  display: grid;
+  gap: clamp(18px, 2.4vw, 34px);
+  justify-items: center;
+}
+.obs__lines {
+  font-size: clamp(2.3rem, 5.2vw, 6rem);
+  line-height: 1;
+}
+.obs__note {
+  color: var(--fg);
+}
+
+@media (max-width: 760px) {
+  .obs {
+    --r: 66vw; /* wider than the screen: you stand inside the turn of the ring */
+  }
+  .obs__lines {
+    font-size: 11vw;
+  }
+}
