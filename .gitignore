@@ -1,0 +1,24 @@
+# Node / Vite
+node_modules
+dist
+dist-ssr
+.vite
+*.local
+*.log
+npm-debug.log*
+.env
+.env.*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+
+# Private source material (public repo): original photos and reference screenshots
+assets/me/
+assets/reference/
+
+# Asset pipeline scratch
+scripts/.cache
