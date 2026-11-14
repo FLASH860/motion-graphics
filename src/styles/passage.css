@@ -1,0 +1,102 @@
+/* ───────── 02 Passage: a CSS 3D corridor ───────── */
+.pass {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* the light at the end of the corridor (the next scene opens from this point) */
+.pass__light {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46vmin;
+  height: 46vmin;
+  margin: -23vmin 0 0 -23vmin;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--glow), transparent);
+  will-change: transform;
+}
+
+/* corner rails: because the camera only moves straight ahead, the four edges of the corridor
+   project to fixed lines from the screen corners to the vanishing point */
+.pass__rails {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  -webkit-mask-image: radial-gradient(closest-side, transparent 12%, #000 75%);
+  mask-image: radial-gradient(closest-side, transparent 12%, #000 75%);
+}
+.pass__rails path {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.pass__stage {
+  position: absolute;
+  inset: 0;
+  perspective-origin: 50% 50%;
+}
+.pass__world {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.pass__rib {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--fg);
+  opacity: 0;
+  /* thin, so far ribs read as a fine engraving rather than a grid */
+  border-color: color-mix(in srgb, var(--fg) 26%, transparent);
+  pointer-events: none;
+}
+.pass__gate {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.pass__line {
+  --k: 1;
+  max-width: 7.2em;
+  font-size: clamp(3.4rem, 10.5vw, 13rem);
+  transform: translate(calc(var(--x) * var(--k) * 1vw), calc(var(--y) * 1svh));
+  opacity: 0;
+  will-change: opacity, filter;
+}
+.pass__line--left {
+  text-align: left;
+}
+.pass__line--right {
+  text-align: right;
+}
+.pass__line--center {
+  text-align: center;
+  max-width: none;
+  font-size: clamp(4rem, 14vw, 17rem);
+}
+
+.pass__count {
+  position: absolute;
+  right: var(--pad);
+  bottom: clamp(18px, 2.4vw, 32px);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 760px) {
+  .pass__line {
+    --k: 0.25;
+    font-size: 21vw;
+    max-width: 4.4em;
+  }
+  .pass__line--center {
+    font-size: 24vw;
+  }
+}

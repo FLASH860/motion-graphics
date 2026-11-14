@@ -6,6 +6,7 @@ import './styles/global.css'
 import './styles/chrome.css'
 import './styles/scene.css'
 import './styles/hero.css'
+import './styles/passage.css'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(<App />)

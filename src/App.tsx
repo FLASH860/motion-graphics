@@ -4,6 +4,7 @@ import Nav from '@/components/Nav'
 import Cursor from '@/components/Cursor'
 import Scene from '@/components/Scene'
 import Hero from '@/sections/Hero'
+import Passage from '@/sections/Passage'
 import { initScroll, lockScroll } from '@/lib/scroll'
 import { SKIP_INTRO } from '@/lib/scene'
 
@@ -23,10 +24,8 @@ export default function App() {
         <Scene index={1} name="Arrival" dwell={40} first>
           <Hero play={revealed} />
         </Scene>
-        <Scene index={2} name="Passage" dwell={60} last>
-          <div style={{ display: 'grid', placeItems: 'center', height: '100%' }}>
-            <p className="caps">placeholder</p>
-          </div>
+        <Scene index={2} name="Passage" dwell={420} last>
+          <Passage />
         </Scene>
       </main>
       <Cursor />
