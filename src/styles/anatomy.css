@@ -1,0 +1,225 @@
+/* ───────── 04 Anatomy: the landing page as an exploded isometric object ───────── */
+.ana {
+  --cw: min(50vw, 88svh); /* card width; everything inside the card is sized from it */
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.5fr);
+  align-items: center;
+  gap: 2vw;
+  padding: 0 var(--pad);
+}
+
+/* ── copy ── */
+.ana__text {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: clamp(22px, 3.2vw, 46px);
+  max-width: 30rem;
+}
+.ana__title {
+  font-size: clamp(2.6rem, 5vw, 5.6rem);
+}
+.ana__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.ana__row {
+  display: grid;
+  grid-template-columns: 2.6rem 1fr;
+  column-gap: 6px;
+  align-items: baseline;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--line);
+  opacity: 0.32;
+  transition: opacity 0.7s var(--ease-expo);
+}
+.ana__row:last-child {
+  border-bottom: 1px solid var(--line);
+}
+.ana__row.is-active {
+  opacity: 1;
+}
+.ana__num {
+  color: var(--accent);
+}
+.ana__name {
+  font-size: clamp(1.25rem, 1.7vw, 1.7rem);
+  line-height: 1.1;
+}
+.ana__note {
+  grid-column: 2;
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.ana__close {
+  position: absolute;
+  left: 0;
+  top: 9.5rem;
+  font-size: clamp(1.5rem, 2.2vw, 2.3rem);
+  line-height: 1.12;
+  max-width: 15em;
+  opacity: 0;
+}
+
+/* ── the object ── */
+.ana__stage {
+  position: relative;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  perspective: 2200px;
+}
+.ana__card {
+  position: relative;
+  width: var(--cw);
+  aspect-ratio: 16 / 9.4;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.ana__sheet {
+  --edge: 0;
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: opacity 0.7s var(--ease-expo);
+}
+/* each sheet gets a hairline frame once the page starts to come apart */
+.ana__sheet::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--line);
+  opacity: var(--edge);
+}
+.ana__sheet--light {
+  background: var(--bg-2);
+  box-shadow: 0 0 0 1px var(--line);
+  overflow: hidden;
+}
+.ana.is-focusing .ana__sheet:not(.is-active):not(.ana__sheet--light) {
+  opacity: 0.22;
+}
+.ana.is-focusing .ana__sheet--light:not(.is-active) .ana__glow {
+  opacity: 0.25;
+}
+.ana__glow {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 78%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--glow), transparent);
+  transition: opacity 0.7s var(--ease-expo);
+}
+.ana__word {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-family: var(--serif);
+  font-weight: 400;
+  line-height: 0.8;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.ana__word--back {
+  top: 11%;
+  font-size: calc(var(--cw) * 0.198);
+}
+.ana__word--front {
+  bottom: 3%;
+  font-size: calc(var(--cw) * 0.15);
+}
+.ana__figure {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  height: 80%;
+  width: auto;
+  max-width: none;
+  transform: translateX(-47.5%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 96%);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 96%);
+}
+.ana__curve {
+  position: absolute;
+  left: 6%;
+  top: 30%;
+  width: 26%;
+  height: 34%;
+  overflow: visible;
+}
+.ana__curve path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.ana__ease {
+  position: absolute;
+  left: 6%;
+  top: 68%;
+  font-size: calc(var(--cw) * 0.0105);
+  color: var(--accent);
+}
+.ana__tag {
+  position: absolute;
+  left: 0;
+  top: calc(100% + var(--cw) * 0.012);
+  font-size: calc(var(--cw) * 0.0135);
+  color: var(--fg);
+  opacity: 0;
+}
+
+@media (max-width: 900px) {
+  .ana {
+    --cw: min(84vw, 52svh);
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    align-items: start;
+    padding-top: clamp(76px, 12svh, 110px);
+    gap: 0;
+  }
+  .ana__text {
+    gap: 14px;
+    max-width: none;
+  }
+  .ana__title {
+    font-size: 11vw;
+  }
+  /* one line at a time: only the sheet being named */
+  .ana__rows {
+    position: relative;
+    height: 4.2rem;
+  }
+  .ana__row,
+  .ana__row:last-child {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+    opacity: 0;
+    align-content: start;
+  }
+  .ana__close {
+    top: calc(11vw + 26px);
+    font-size: 1.35rem;
+  }
+  .ana__tag {
+    font-size: calc(var(--cw) * 0.024);
+  }
+  .ana__stage {
+    align-items: center;
+    padding-bottom: 8svh;
+  }
+}

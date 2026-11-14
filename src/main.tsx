@@ -8,6 +8,7 @@ import './styles/scene.css'
 import './styles/hero.css'
 import './styles/passage.css'
 import './styles/obsession.css'
+import './styles/anatomy.css'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(<App />)

@@ -6,6 +6,7 @@ import Scene from '@/components/Scene'
 import Hero from '@/sections/Hero'
 import Passage from '@/sections/Passage'
 import Obsession from '@/sections/Obsession'
+import Anatomy from '@/sections/Anatomy'
 import { initScroll, lockScroll } from '@/lib/scroll'
 import { SKIP_INTRO } from '@/lib/scene'
 
@@ -28,8 +29,11 @@ export default function App() {
         <Scene index={2} name="Passage" dwell={420}>
           <Passage />
         </Scene>
-        <Scene index={3} name="Obsession" dwell={90} last>
+        <Scene index={3} name="Obsession" dwell={90}>
           <Obsession />
+        </Scene>
+        <Scene index={4} name="Anatomy" dwell={340} last>
+          <Anatomy />
         </Scene>
       </main>
       <Cursor />
