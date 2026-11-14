@@ -1,0 +1,130 @@
+/* ───────── 05 Movement: the watch film, scrubbed ───────── */
+.mov {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+}
+
+.mov__canvas {
+  width: min(100vw, 168svh);
+  height: auto;
+  aspect-ratio: 16 / 9;
+  will-change: transform;
+  /* black footage melts into the dark page */
+  mix-blend-mode: lighten;
+}
+/* same film, inverted with its hues kept: a pale technical study on paper */
+:root[data-theme='light'] .mov__canvas {
+  filter: invert(1) hue-rotate(180deg) contrast(1.08);
+  mix-blend-mode: multiply;
+}
+
+.mov__title {
+  position: absolute;
+  left: var(--pad);
+  top: clamp(84px, 15svh, 150px);
+  font-size: clamp(2.8rem, 6.4vw, 7.4rem);
+  z-index: 2;
+}
+
+/* ── info cards ── */
+.mov__cards {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.mov__card {
+  position: absolute;
+  bottom: clamp(64px, 11svh, 120px);
+  width: min(21rem, 27vw);
+  padding: 1.35rem 1.45rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  visibility: hidden;
+  will-change: transform, opacity;
+}
+.mov__card--left {
+  left: var(--pad);
+}
+.mov__card--right {
+  right: var(--pad);
+}
+.mov__n {
+  color: var(--accent);
+}
+.mov__n span {
+  color: var(--muted);
+}
+.mov__name {
+  margin-top: 0.7rem;
+  font-size: clamp(1.9rem, 2.7vw, 2.9rem);
+  line-height: 1;
+}
+.mov__rule {
+  display: block;
+  height: 1px;
+  margin: 0.95rem 0 0.9rem;
+  background: var(--accent);
+  transform-origin: left center;
+}
+.mov__card--right .mov__rule {
+  transform-origin: right center;
+}
+.mov__text {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* ── frame counter ── */
+.mov__hud {
+  position: absolute;
+  right: var(--pad);
+  bottom: clamp(18px, 2.4vw, 32px);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-variant-numeric: tabular-nums;
+  z-index: 4;
+}
+.mov__hud b {
+  font-weight: 500;
+  color: var(--fg);
+}
+.mov__bar {
+  display: block;
+  width: clamp(70px, 9vw, 150px);
+  height: 1px;
+  background: var(--line);
+}
+.mov__bar > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+@media (max-width: 760px) {
+  .mov__canvas {
+    width: 108vw;
+    margin-top: -14svh;
+  }
+  .mov__title {
+    font-size: 13vw;
+  }
+  .mov__card {
+    width: auto;
+    left: var(--pad);
+    right: var(--pad);
+    bottom: 64px;
+  }
+  .mov__bar {
+    display: none;
+  }
+}

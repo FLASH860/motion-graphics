@@ -7,6 +7,7 @@ import Hero from '@/sections/Hero'
 import Passage from '@/sections/Passage'
 import Obsession from '@/sections/Obsession'
 import Anatomy from '@/sections/Anatomy'
+import Movement, { preloadWatch } from '@/sections/Movement'
 import { initScroll, lockScroll } from '@/lib/scroll'
 import { SKIP_INTRO } from '@/lib/scene'
 
@@ -17,6 +18,12 @@ export default function App() {
 
   useEffect(() => initScroll(), [])
   useEffect(() => lockScroll(!loaderGone), [loaderGone])
+  // once the intro is over, fetch the watch frames in the background, well before they are needed
+  useEffect(() => {
+    if (!loaderGone) return
+    const id = window.setTimeout(preloadWatch, 1500)
+    return () => window.clearTimeout(id)
+  }, [loaderGone])
 
   return (
     <>
@@ -32,8 +39,11 @@ export default function App() {
         <Scene index={3} name="Obsession" dwell={90}>
           <Obsession />
         </Scene>
-        <Scene index={4} name="Anatomy" dwell={340} last>
+        <Scene index={4} name="Anatomy" dwell={340}>
           <Anatomy />
+        </Scene>
+        <Scene index={5} name="Movement" dwell={520} last>
+          <Movement />
         </Scene>
       </main>
       <Cursor />

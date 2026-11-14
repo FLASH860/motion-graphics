@@ -9,6 +9,7 @@ import './styles/hero.css'
 import './styles/passage.css'
 import './styles/obsession.css'
 import './styles/anatomy.css'
+import './styles/movement.css'
 import App from './App'
 
 createRoot(document.getElementById('root')!).render(<App />)
