@@ -8,6 +8,7 @@ import Passage from '@/sections/Passage'
 import Obsession from '@/sections/Obsession'
 import Anatomy from '@/sections/Anatomy'
 import Movement, { preloadWatch } from '@/sections/Movement'
+import Principles from '@/sections/Principles'
 import { initScroll, lockScroll } from '@/lib/scroll'
 import { SKIP_INTRO } from '@/lib/scene'
 
@@ -42,8 +43,11 @@ export default function App() {
         <Scene index={4} name="Anatomy" dwell={340}>
           <Anatomy />
         </Scene>
-        <Scene index={5} name="Movement" dwell={520} last>
+        <Scene index={5} name="Movement" dwell={520}>
           <Movement />
+        </Scene>
+        <Scene index={6} name="Principles" dwell={130} last>
+          <Principles />
         </Scene>
       </main>
       <Cursor />
