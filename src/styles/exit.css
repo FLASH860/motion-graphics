@@ -1,0 +1,169 @@
+/* ───────── 07 Exit: the sign-off ───────── */
+.exit {
+  --dh: min(76svh, 46vw * 1.53); /* door height */
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* ── the doorway ── */
+.exit__door {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  height: var(--dh);
+  aspect-ratio: 922 / 1409;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  border-radius: 3px;
+  background: #0b0a09;
+  will-change: clip-path;
+}
+.exit__zoom,
+.exit__drift {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.exit__plate,
+.exit__figure {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+.exit__plate {
+  /* the far layer is held slightly soft: depth of field */
+  filter: blur(1.2px);
+  transform-origin: 50% 45%;
+}
+.exit__figure {
+  transform-origin: 50% 100%;
+}
+
+/* ── copy ── */
+.exit__left,
+.exit__right {
+  position: absolute;
+  bottom: clamp(70px, 13svh, 130px);
+  width: calc(50vw - var(--dh) * 0.327 - var(--pad) - 3vw);
+  display: grid;
+  gap: clamp(20px, 2.6vw, 38px);
+}
+.exit__left {
+  left: var(--pad);
+}
+.exit__right {
+  right: var(--pad);
+  justify-items: end;
+  text-align: right;
+}
+.exit__line {
+  font-size: clamp(2.6rem, 5.6vw, 6.6rem);
+}
+.exit__name {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.exit__name span {
+  display: block;
+  color: var(--muted);
+}
+.exit__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.15em;
+  font-size: clamp(2rem, 3.6vw, 4.2rem);
+}
+.exit__link {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.22em;
+  line-height: 1.1;
+}
+.exit__link svg {
+  width: 0.42em;
+  height: 0.42em;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  transition: transform 0.9s var(--ease-expo);
+}
+.exit__link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.06em;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.9s var(--ease-expo);
+}
+.exit__link:hover::after,
+.exit__link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+.exit__link:hover svg,
+.exit__link:focus-visible svg {
+  transform: translate(0.12em, -0.12em);
+}
+.exit__clock {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+}
+.exit__time {
+  font-size: clamp(1.7rem, 2.4vw, 2.6rem);
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1;
+}
+.exit__legal {
+  position: absolute;
+  right: var(--pad);
+  bottom: clamp(18px, 2.4vw, 32px);
+}
+
+@media (max-width: 900px) {
+  .exit {
+    --dh: 44svh;
+  }
+  .exit__door {
+    top: calc(72px + var(--dh) / 2);
+  }
+  .exit__left,
+  .exit__right {
+    left: var(--pad);
+    right: var(--pad);
+    width: auto;
+    gap: 10px;
+  }
+  .exit__left {
+    bottom: auto;
+    top: calc(72px + var(--dh) + 22px);
+  }
+  .exit__line {
+    font-size: 12.5vw;
+  }
+  .exit__right {
+    bottom: 58px;
+    grid-template-columns: 1fr auto;
+    align-items: end;
+    justify-items: start;
+    text-align: left;
+  }
+  .exit__links {
+    font-size: 8.4vw;
+  }
+  .exit__legal {
+    display: none;
+  }
+}

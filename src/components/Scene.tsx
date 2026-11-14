@@ -33,7 +33,8 @@ export default function Scene({ index, name, dwell = 0, first, last, children }:
       ScrollTrigger.create({
         trigger: el,
         start: () => `top+=${tin * 0.5 * unit()} top`,
-        end: () => `+=${(tin * 0.5 + dwell + tout * 0.5) * unit()}`,
+        // (the last scene's range runs past the end of the page so it stays current at the bottom)
+        end: () => `+=${(tin * 0.5 + dwell + (last ? 200 : tout * 0.5)) * unit()}`,
         invalidateOnRefresh: true,
         onToggle: (self) => self.isActive && setActiveScene({ index, name }),
       })
@@ -65,7 +66,7 @@ export default function Scene({ index, name, dwell = 0, first, last, children }:
         .to(prevShade, { opacity: 0.62, duration: 1, ease: 'power1.in' }, 0)
     }, el)
     return () => ctx.revert()
-  }, [first, index, name, dwell, tin, tout])
+  }, [first, last, index, name, dwell, tin, tout])
 
   return (
     <div

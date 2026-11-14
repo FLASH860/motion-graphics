@@ -9,6 +9,7 @@ import Obsession from '@/sections/Obsession'
 import Anatomy from '@/sections/Anatomy'
 import Movement, { preloadWatch } from '@/sections/Movement'
 import Principles from '@/sections/Principles'
+import Exit from '@/sections/Exit'
 import { initScroll, lockScroll } from '@/lib/scroll'
 import { SKIP_INTRO } from '@/lib/scene'
 
@@ -46,8 +47,11 @@ export default function App() {
         <Scene index={5} name="Movement" dwell={520}>
           <Movement />
         </Scene>
-        <Scene index={6} name="Principles" dwell={130} last>
+        <Scene index={6} name="Principles" dwell={130}>
           <Principles />
+        </Scene>
+        <Scene index={7} name="Exit" dwell={110} last>
+          <Exit />
         </Scene>
       </main>
       <Cursor />
