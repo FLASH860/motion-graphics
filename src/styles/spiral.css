@@ -1,0 +1,257 @@
+/* ───────── 07 Spiral: cards on a helix around a column of light ───────── */
+.spi {
+  --radius: min(27vw, 400px); /* helix radius */
+  --cw: min(23vw, 330px); /* card width */
+  --rise: 150px; /* height between neighbouring cards (read by Spiral.tsx) */
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+.spi__copy {
+  position: absolute;
+  left: var(--pad);
+  top: clamp(84px, 14svh, 140px);
+  z-index: 4;
+  display: grid;
+  gap: 18px;
+}
+.spi__title {
+  font-size: clamp(2.2rem, 4.4vw, 5rem);
+}
+.spi__count {
+  position: absolute;
+  right: var(--pad);
+  bottom: clamp(18px, 2.4vw, 32px);
+  font-variant-numeric: tabular-nums;
+}
+.spi__count b {
+  font-weight: 500;
+  color: var(--fg);
+}
+
+.spi__stage {
+  position: absolute;
+  inset: 0;
+  perspective: 1500px;
+  perspective-origin: 50% 44%;
+}
+.spi__tilt,
+.spi__helix,
+.spi__tread {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform-style: preserve-3d;
+}
+.spi__tilt {
+  transform: rotateX(-13deg);
+}
+.spi__helix {
+  will-change: transform;
+}
+/* page-coloured veil on the axis: whatever is behind it (the far half of the stair) fades */
+.spi__veil {
+  position: absolute;
+  left: -150vmax;
+  top: -150vmax;
+  width: 300vmax;
+  height: 300vmax;
+  background: var(--bg);
+  opacity: 0.8;
+}
+
+/* ── the core ── */
+.spi__core {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateZ(2px);
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+.spi__beam {
+  position: absolute;
+  left: -3px;
+  top: -80vh;
+  width: 6px;
+  height: 160vh;
+  border-radius: 3px;
+  background: linear-gradient(to bottom, transparent, var(--accent) 22%, var(--core-hot) 50%, var(--accent) 78%, transparent);
+}
+.spi__halo {
+  position: absolute;
+  left: -90px;
+  top: -70vh;
+  width: 180px;
+  height: 140vh;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 46%, transparent), transparent);
+  filter: blur(18px);
+  opacity: 0.75;
+  animation: spi-breathe 5s ease-in-out infinite;
+}
+.spi__spark {
+  position: absolute;
+  left: -1px;
+  width: 2px;
+  height: 90px;
+  background: linear-gradient(to bottom, transparent, var(--core-hot), transparent);
+  animation: spi-rise 3.8s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+}
+.spi__spark--a {
+  left: -9px;
+}
+.spi__spark--b {
+  left: 8px;
+  animation-duration: 5.2s;
+  animation-delay: -1.7s;
+}
+.spi__spark--c {
+  left: 15px;
+  height: 50px;
+  animation-duration: 6.4s;
+  animation-delay: -3.1s;
+}
+/* horizontal rings: they lie flat, so the stage tilt shows them as ellipses */
+.spi__ring {
+  position: absolute;
+  left: 0;
+  top: var(--y);
+  width: 0;
+  height: 0;
+  transform: rotateX(90deg);
+  transform-style: preserve-3d;
+}
+.spi__ring i {
+  position: absolute;
+  left: calc(var(--d) / -2);
+  top: calc(var(--d) / -2);
+  width: var(--d);
+  height: var(--d);
+  border: 1px dashed color-mix(in srgb, var(--accent) 80%, transparent);
+  border-radius: 50%;
+  animation: spi-turn var(--t) linear infinite;
+}
+.spi__ring--0 { --y: -34vh; --d: 130px; --t: 26s; }
+.spi__ring--1 { --y: -16vh; --d: 230px; --t: 38s; }
+.spi__ring--2 { --y: 0vh; --d: 170px; --t: 22s; }
+.spi__ring--3 { --y: 17vh; --d: 270px; --t: 44s; }
+.spi__ring--4 { --y: 33vh; --d: 150px; --t: 30s; }
+.spi__ring--1 i,
+.spi__ring--3 i {
+  animation-direction: reverse;
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--accent) 34%, transparent);
+}
+@keyframes spi-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes spi-rise {
+  0% {
+    transform: translateY(50vh);
+    opacity: 0;
+  }
+  20%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-58vh);
+    opacity: 0;
+  }
+}
+@keyframes spi-breathe {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* ── the treads ── */
+.spi__tread {
+  transform: translateY(calc(var(--i) * var(--rise))) rotateY(var(--a)) translateZ(var(--radius));
+}
+.spi__card {
+  position: absolute;
+  left: calc(var(--cw) / -2);
+  top: calc(var(--cw) * -0.62);
+  width: var(--cw);
+  aspect-ratio: 4 / 5;
+  padding: calc(var(--cw) * 0.09);
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  border-radius: calc(var(--cw) * 0.06);
+  /* an edge that catches the light: a gradient ring drawn under a solid face */
+  background:
+    linear-gradient(color-mix(in srgb, var(--bg-2) 90%, transparent), color-mix(in srgb, var(--bg-2) 90%, transparent)) padding-box,
+    linear-gradient(145deg, var(--accent), color-mix(in srgb, var(--fg) 18%, transparent) 38%, transparent 62%, var(--accent)) border-box;
+  border: 1px solid transparent;
+  opacity: 0.5;
+  transition: opacity 0.9s var(--ease-expo);
+}
+.spi__card.is-active {
+  opacity: 1;
+}
+.spi__n {
+  color: var(--accent);
+}
+.spi__n span {
+  color: var(--muted);
+}
+.spi__name {
+  align-self: end;
+  font-size: calc(var(--cw) * 0.15);
+  line-height: 1;
+}
+.spi__rule {
+  display: block;
+  height: 1px;
+  margin: calc(var(--cw) * 0.05) 0;
+  background: var(--accent);
+  transform: scaleX(0.25);
+  transform-origin: left center;
+  transition: transform 1.1s var(--ease-expo);
+}
+.spi__card.is-active .spi__rule {
+  transform: scaleX(1);
+}
+.spi__text {
+  font-size: clamp(0.78rem, calc(var(--cw) * 0.047), 1rem);
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+@media (max-width: 760px) {
+  .spi {
+    --radius: 44vw;
+    --cw: 60vw;
+    --rise: 120px;
+  }
+  .spi__title {
+    font-size: 10vw;
+  }
+  .spi__hint {
+    display: none;
+  }
+  .spi__stage {
+    perspective: 900px;
+    perspective-origin: 50% 40%;
+  }
+  .spi__tilt {
+    top: 56%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spi__ring i,
+  .spi__spark,
+  .spi__halo {
+    animation: none;
+  }
+}

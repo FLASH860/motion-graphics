@@ -9,6 +9,8 @@ import Obsession from '@/sections/Obsession'
 import Anatomy from '@/sections/Anatomy'
 import Movement, { preloadWatch } from '@/sections/Movement'
 import Reel from '@/sections/Reel'
+import Spiral from '@/sections/Spiral'
+import Crystal from '@/sections/Crystal'
 import Exit from '@/sections/Exit'
 import { initScroll, lockScroll } from '@/lib/scroll'
 import { SKIP_INTRO } from '@/lib/scene'
@@ -49,6 +51,12 @@ export default function App() {
         </Scene>
         <Scene index={6} name="Reel" dwell={130} enter="rise">
           <Reel />
+        </Scene>
+        <Scene index={7} name="Spiral" dwell={460} enter="columns">
+          <Spiral />
+        </Scene>
+        <Scene index={8} name="Crystal" dwell={130} enter="blade">
+          <Crystal />
         </Scene>
         <Scene index={9} name="Exit" dwell={110} enter="rise" last>
           <Exit />

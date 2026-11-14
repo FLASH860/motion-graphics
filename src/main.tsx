@@ -11,6 +11,8 @@ import './styles/obsession.css'
 import './styles/anatomy.css'
 import './styles/movement.css'
 import './styles/reel.css'
+import './styles/spiral.css'
+import './styles/crystal.css'
 import './styles/exit.css'
 import App from './App'
 

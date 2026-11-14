@@ -24,6 +24,7 @@
   --neu-light: rgba(255, 244, 224, 0.075);
   --knob-a: #2a2622;
   --knob-b: #161412;
+  --core-hot: #fff3dc; /* the brightest part of a light source */
 }
 
 :root[data-theme='light'] {
@@ -41,6 +42,7 @@
   --neu-light: rgba(255, 255, 255, 0.95);
   --knob-a: #f6f2ea;
   --knob-b: #ddd6c8;
+  --core-hot: #c98a2e;
 }
 
 /* ───────── base ───────── */

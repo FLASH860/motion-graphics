@@ -1,0 +1,261 @@
+/* ───────── 08 Crystal: glass, lit from behind ───────── */
+.cry {
+  /* glass recipe, per theme */
+  --glass-fill: linear-gradient(140deg, rgba(255, 255, 255, 0.17), rgba(255, 255, 255, 0.04) 46%, rgba(255, 255, 255, 0.09));
+  --glass-edge: rgba(255, 255, 255, 0.32);
+  --glass-hi: rgba(255, 255, 255, 0.55);
+  --glass-lo: rgba(0, 0, 0, 0.35);
+  --glass-drop: rgba(0, 0, 0, 0.5);
+  --facet-hi: rgba(255, 255, 255, 0.34);
+  --facet-mid: rgba(255, 255, 255, 0.1);
+  --facet-lo: rgba(0, 0, 0, 0.22);
+  --pool-a: #d39a4e;
+  --pool-b: #a8322b;
+  --pool-c: #2d6a86;
+  --pool-d: #e9cf9d;
+  --pool-alpha: 0.7;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+:root[data-theme='light'] .cry {
+  --glass-fill: linear-gradient(140deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.2) 46%, rgba(255, 255, 255, 0.38));
+  --glass-edge: rgba(255, 255, 255, 0.95);
+  --glass-hi: rgba(255, 255, 255, 1);
+  --glass-lo: rgba(120, 96, 60, 0.22);
+  --glass-drop: rgba(110, 86, 50, 0.3);
+  --facet-hi: rgba(255, 255, 255, 0.7);
+  --facet-mid: rgba(255, 255, 255, 0.28);
+  --facet-lo: rgba(120, 96, 60, 0.16);
+  --pool-a: #e0a04a;
+  --pool-b: #cf5a44;
+  --pool-c: #4d93b3;
+  --pool-d: #f0c869;
+  --pool-alpha: 0.85;
+}
+
+/* ── light ── */
+.cry__field {
+  position: absolute;
+  inset: 0;
+}
+.cry__pool {
+  position: absolute;
+  width: 46vmax;
+  height: 46vmax;
+  border-radius: 50%;
+  /* (the radial gradients below are already soft: no blur filter, which would cost a large raster) */
+  opacity: var(--pool-alpha);
+  will-change: transform;
+}
+.cry__pool--a {
+  left: 4%;
+  top: -14%;
+  background: radial-gradient(closest-side, var(--pool-a), color-mix(in srgb, var(--pool-a) 45%, transparent) 45%, transparent);
+}
+.cry__pool--b {
+  right: -6%;
+  top: 6%;
+  width: 38vmax;
+  height: 38vmax;
+  background: radial-gradient(closest-side, var(--pool-b), color-mix(in srgb, var(--pool-b) 45%, transparent) 45%, transparent);
+}
+.cry__pool--c {
+  left: 22%;
+  bottom: -30%;
+  width: 40vmax;
+  height: 40vmax;
+  background: radial-gradient(closest-side, var(--pool-c), color-mix(in srgb, var(--pool-c) 45%, transparent) 45%, transparent);
+}
+.cry__pool--d {
+  right: 14%;
+  bottom: -18%;
+  width: 30vmax;
+  height: 30vmax;
+  background: radial-gradient(closest-side, var(--pool-d), color-mix(in srgb, var(--pool-d) 45%, transparent) 45%, transparent);
+}
+/* a word behind the glass, so there is something for it to bend */
+.cry__word {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--serif);
+  font-size: min(25vw, 56svh);
+  line-height: 0.8;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  color: var(--fg);
+  opacity: 0.9;
+}
+
+/* ── glass ── */
+.cry__stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 1500px;
+}
+.cry__slab {
+  position: relative;
+  width: min(46rem, 62vw);
+  min-height: min(27rem, 58svh);
+  padding: clamp(22px, 2.8vw, 44px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  border-radius: clamp(18px, 2.2vw, 34px);
+  border: 1px solid var(--glass-edge);
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(26px) saturate(1.7) brightness(1.06);
+  backdrop-filter: blur(26px) saturate(1.7) brightness(1.06);
+  box-shadow:
+    inset 0 1px 0 var(--glass-hi),
+    inset 0 -1px 0 var(--glass-lo),
+    inset 1px 0 0 rgba(255, 255, 255, 0.14),
+    inset 0 0 60px rgba(255, 255, 255, 0.06),
+    0 40px 80px -30px var(--glass-drop);
+  overflow: hidden;
+  will-change: transform;
+}
+/* the specular pass */
+.cry__glint {
+  position: absolute;
+  top: -20%;
+  left: 0;
+  width: 26%;
+  height: 140%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.3) 45%, rgba(255, 255, 255, 0.05) 60%, transparent);
+  transform: translateX(-160%) skewX(-14deg);
+  pointer-events: none;
+  will-change: transform;
+}
+.cry__label {
+  color: var(--fg);
+  opacity: 0.75;
+}
+.cry__lines {
+  position: relative;
+  align-self: center;
+  font-size: clamp(2.3rem, 5.4vw, 6.2rem);
+  min-height: 2.1em;
+}
+.cry__line {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+.cry__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.cry__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cry__chip {
+  padding: 8px 14px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-edge);
+  background: var(--glass-fill);
+  box-shadow: inset 0 1px 0 var(--glass-hi);
+  color: var(--fg);
+  line-height: 1;
+}
+.cry__dots {
+  display: flex;
+  gap: 6px;
+}
+.cry__dots i {
+  display: block;
+  width: 34px;
+  height: 2px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--fg) 22%, transparent);
+  overflow: hidden;
+}
+.cry__dot {
+  display: block;
+  height: 100%;
+  background: var(--fg);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+/* ── cut crystals: one refracting outline, four lit facets ── */
+.cry__gem {
+  position: absolute;
+  width: var(--g);
+  aspect-ratio: 1 / 1.16;
+  clip-path: polygon(50% 0%, 100% 30%, 82% 100%, 18% 100%, 0% 30%);
+  -webkit-backdrop-filter: blur(10px) saturate(2) brightness(1.15);
+  backdrop-filter: blur(10px) saturate(2) brightness(1.15);
+  will-change: transform;
+}
+.cry__gem i {
+  position: absolute;
+  inset: 0;
+}
+/* crown, left and right pavilion, table: each catches the light differently */
+.cry__gem .f1 {
+  clip-path: polygon(50% 0%, 100% 30%, 50% 40%, 0% 30%);
+  background: linear-gradient(180deg, var(--facet-hi), var(--facet-mid));
+}
+.cry__gem .f2 {
+  clip-path: polygon(0% 30%, 50% 40%, 18% 100%);
+  background: linear-gradient(200deg, var(--facet-mid), var(--facet-lo));
+}
+.cry__gem .f3 {
+  clip-path: polygon(100% 30%, 82% 100%, 50% 40%);
+  background: linear-gradient(160deg, var(--facet-hi), var(--facet-mid) 70%);
+}
+.cry__gem .f4 {
+  clip-path: polygon(50% 40%, 82% 100%, 18% 100%);
+  background: linear-gradient(180deg, var(--facet-lo), var(--facet-mid));
+}
+.cry__gem--a {
+  --g: clamp(90px, 13vw, 200px);
+  left: calc(50% - min(23rem, 31vw) - var(--g) * 0.55);
+  top: 16%;
+}
+.cry__gem--b {
+  --g: clamp(110px, 16vw, 250px);
+  left: calc(50% + min(23rem, 31vw) - var(--g) * 0.42);
+  top: 46%;
+}
+.cry__gem--c {
+  --g: clamp(56px, 7vw, 110px);
+  left: calc(50% - min(23rem, 31vw) + var(--g) * 0.4);
+  bottom: 12%;
+}
+
+@media (max-width: 760px) {
+  .cry__slab {
+    width: 86vw;
+    min-height: 52svh;
+  }
+  .cry__lines {
+    font-size: 12.5vw;
+  }
+  .cry__dots {
+    display: none;
+  }
+  .cry__gem--a {
+    left: 2%;
+    top: 12%;
+  }
+  .cry__gem--b {
+    left: auto;
+    right: 0;
+    top: auto;
+    bottom: 12%;
+  }
+  .cry__gem--c {
+    left: 10%;
+    bottom: 16%;
+  }
+}

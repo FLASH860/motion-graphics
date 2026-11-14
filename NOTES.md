@@ -2,7 +2,41 @@
 
 Decisions and open questions, newest first.
 
-## The full site (sections 02 to 07)
+## Revision: new loader, new transitions, pages 06 to 08 replaced or added
+
+Asked for: a cooler loader, page 6 replaced, motion design that plays by itself (10 to 15 s,
+not tied to scroll), different transitions from page 6 on (one from the bottom, one with more
+impact), a spiral of cards around a futuristic core (from a reference screenshot), and a page of
+crystal-like glass. The site is now nine scenes.
+
+- **Loader** is a watch dial: sixty ticks light with real progress, a hand sweeps, the count
+  sits in the centre. At 100 the dial becomes an aperture: a hole opens from its centre and the
+  tick ring rides the edge of the hole off screen. The hole is an even-odd clip-path polygon
+  rebuilt per frame.
+- **Transitions** are now a prop on `Scene` (`enter`): `rect` (scenes 2 to 5, unchanged),
+  `rise` (a curved horizon coming up from the bottom: Reel, Exit), `columns` (seven columns
+  climbing one after another: Spiral), `blade` (a slanted edge sweeping across: Crystal).
+- **06 Reel** replaces Principles. A 14.6 s film in five shots (Form, Motion, Timing, Depth,
+  End) cut with hard wipes across three palettes, on a GSAP timeline that loops. It has a
+  timecode and progress bar. The last wipe uncovers shot 1 in its empty state, so the loop has
+  no seam. It is code, not a video file: no MCP or generator was used, it stays sharp at any
+  size, and it follows the theme.
+- **07 Spiral.** Eight cards on a helix around a column of light; scroll turns and lifts the
+  stair. The cards name disciplines, not projects (the brief rules projects out).
+- **08 Crystal.** A second self-playing piece on a 15 s loop: pools of light drift behind a
+  glass slab and three cut crystals. Four elements carry a backdrop-filter; facets are plain
+  gradient polygons. Deliberately no rainbow edge splitting (the style rules ban chromatic
+  aberration).
+- **Nav** mark and index now use a difference blend so they stay readable over the film's
+  inverted shots; the theme switch moved to its own layer so the blend does not touch it.
+- **Measured** (headless Chrome, RTX 3050, 1440x810, wheel-scrolling the full page): average
+  frame 7 to 8 ms in most scenes, about 10 ms in Crystal and 12 ms in the first scene. Each
+  scene still has one to three single long frames (up to roughly 220 ms in Crystal) the first
+  time it comes on screen.
+- **Open**: the long first-appearance frames; the film and glass have not been watched by a
+  person yet; Principles (the folding screen) is deleted but is in git history if wanted back.
+
+## The first full build (sections 02 to 07, before the revision above)
 
 One idea runs through the whole thing: **taking things apart to see how they are made.** The
 corridor takes a sentence apart, Anatomy takes the landing page apart, Movement takes the watch
