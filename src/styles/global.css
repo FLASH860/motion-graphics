@@ -1,0 +1,170 @@
+/* ───────── tokens ───────── */
+:root {
+  --serif: 'Cormorant Variable', 'Cormorant Garamond', 'Times New Roman', serif;
+  --sans: 'Hanken Grotesk Variable', 'Helvetica Neue', Arial, sans-serif;
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+  --pad: clamp(20px, 3.2vw, 56px);
+}
+
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0b0a09;
+  --bg-2: #131110;
+  --fg: #ece6da;
+  --muted: #8d8578;
+  --accent: #c9a26b;
+  --line: rgba(236, 230, 218, 0.16);
+  --glow: rgba(214, 158, 92, 0.2);
+  --grain: 0.07;
+  /* neumorphism: one shadow darker than the surface, one lighter */
+  --neu-surface: #131110;
+  --neu-dark: rgba(0, 0, 0, 0.75);
+  --neu-light: rgba(255, 244, 224, 0.075);
+  --knob-a: #2a2622;
+  --knob-b: #161412;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #ece7dd;
+  --bg-2: #e2dccf;
+  --fg: #14120f;
+  --muted: #6e675b;
+  --accent: #96692e;
+  --line: rgba(20, 18, 15, 0.16);
+  --glow: rgba(255, 252, 244, 0.85);
+  --grain: 0.09;
+  --neu-surface: #e6e0d5;
+  --neu-dark: rgba(150, 138, 116, 0.6);
+  --neu-light: rgba(255, 255, 255, 0.95);
+  --knob-a: #f6f2ea;
+  --knob-b: #ddd6c8;
+}
+
+/* ───────── base ───────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+html.is-locked,
+html.is-locked body {
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+p,
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  user-select: none;
+}
+
+:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 6px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.caps {
+  font-family: var(--sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ───────── film grain: static, very quiet, softens the upscaled photography ───────── */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: var(--grain);
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ───────── ink-bleed theme transition (View Transitions + sprite-sheet mask) ───────── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+.ink-transition::view-transition-old(root) {
+  z-index: 1;
+}
+.ink-transition::view-transition-new(root) {
+  z-index: 2;
+  -webkit-mask-image: var(--ink-sheet);
+  mask-image: var(--ink-sheet);
+  -webkit-mask-size: 800% 800%;
+  mask-size: 800% 800%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: 0% 0%;
+  mask-position: 0% 0%;
+}
+
+/* ───────── temporary placeholder after the hero ───────── */
+.placeholder {
+  height: 100svh;
+  display: grid;
+  place-items: center;
+  background: var(--bg-2);
+  border-top: 1px solid var(--line);
+}

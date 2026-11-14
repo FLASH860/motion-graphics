@@ -1,0 +1,182 @@
+.hero {
+  position: relative;
+  height: 100svh;
+  min-height: 520px;
+  overflow: hidden;
+  background: var(--bg);
+  isolation: isolate;
+}
+
+.hero__plane {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+.hero__drift {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+/* warm backlight behind the portrait, echoing the rim light in the photograph */
+.hero__glow {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: min(120vh, 110vw);
+  aspect-ratio: 1;
+  margin: calc(min(120vh, 110vw) / -2) 0 0 calc(min(120vh, 110vw) / -2);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--glow), transparent 100%);
+}
+
+/* ── type planes ── */
+.hero__word {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  white-space: nowrap;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 19vw; /* refined in JS so both words span the same measure */
+  line-height: 0.8;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+.hero__word--back {
+  top: clamp(64px, 11svh, 120px);
+}
+.hero__word--front {
+  bottom: clamp(10px, 2.2svh, 28px);
+}
+.char {
+  display: inline-block;
+  overflow: hidden;
+  /* room for the mask so the tops of capitals are never clipped */
+  padding: 0.06em 0 0.02em;
+  vertical-align: top;
+}
+.char__in {
+  display: inline-block;
+  will-change: transform;
+}
+
+/* ── portrait ── */
+.hero__plane--figure {
+  transform-origin: 50% 70%;
+  /* dissolve the torso into the page so the surname can sit in front of it in either theme */
+  -webkit-mask-image: linear-gradient(to bottom, #000 58%, transparent 92%);
+  mask-image: linear-gradient(to bottom, #000 58%, transparent 92%);
+}
+.hero__figure {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  height: 80svh;
+  width: auto;
+  max-width: none;
+  /* the head sits slightly left of the image centre */
+  margin-left: calc(80svh * 1.615 * -0.475);
+  transform-origin: 50% 80%;
+}
+
+/* Light theme: the suit stays solid and the surname inverts where it crosses it
+   (difference against the page colour = ink on paper, paper on the dark suit). */
+:root[data-theme='light'] .hero__plane--figure {
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+:root[data-theme='light'] .hero__plane--front {
+  mix-blend-mode: difference;
+}
+:root[data-theme='light'] .hero__word--front {
+  color: var(--bg);
+}
+
+/* ── meta ── */
+.hero__meta {
+  position: absolute;
+  top: 54%;
+  z-index: 3;
+  display: grid;
+  gap: 10px;
+}
+.hero__meta--left {
+  left: var(--pad);
+}
+.hero__meta--right {
+  right: var(--pad);
+  text-align: right;
+}
+.hero__line {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1.25rem, 1.7vw, 1.75rem);
+  line-height: 1.1;
+  color: var(--fg);
+}
+.hero__scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+}
+.hero__scroll-line {
+  position: relative;
+  display: block;
+  width: 56px;
+  height: 1px;
+  background: var(--line);
+  overflow: hidden;
+}
+.hero__scroll-line::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: translateX(-101%);
+  animation: scroll-cue 3.2s var(--ease-inout) infinite;
+}
+@keyframes scroll-cue {
+  0% {
+    transform: translateX(-101%);
+  }
+  55%,
+  100% {
+    transform: translateX(101%);
+  }
+}
+
+/* ── small screens: the portrait leads, type scales with the width ── */
+@media (max-width: 760px) {
+  .hero__figure {
+    height: 66svh;
+    margin-left: calc(66svh * 1.615 * -0.475);
+  }
+  .hero__word--back {
+    /* tuck the baseline just behind the top of the hair */
+    top: calc(39svh - 0.8em);
+  }
+  .hero__word--front {
+    bottom: 9svh;
+  }
+  .hero__meta {
+    top: auto;
+    bottom: 22px;
+  }
+  /* on a phone the suit fills the bottom edge in the light theme, so the notes sit on it */
+  :root[data-theme='light'] .hero__meta .hero__line {
+    color: #ece6da;
+  }
+  :root[data-theme='light'] .hero__meta .caps {
+    color: #b9b1a3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__scroll-line::after {
+    animation: none;
+    transform: none;
+  }
+}
