@@ -12,12 +12,14 @@ import { getTheme } from '@/lib/theme'
  * every beat the picture itself changes: a ripple runs out from the centre and the ribbons
  * shift colour, so the background cuts with the type instead of sitting behind it.
  *
- * Type: five beats of four seconds, each arriving and leaving a different way:
- *   1 two rows slide in from opposite sides       → leave by flying through the camera
- *   2 arrives from deep in the frame              → rows part left and right
- *   3 a ticker of easing names spins and lands    → drops out
- *   4 letters rise one by one, then hold still    → dissolve
- *   5 the signature                               → flies through the camera, and it loops
+ * Type: five beats of four seconds. Each one uses the whole screen and is built a different way:
+ *   1 WALL     five rows of one line fill the screen, alternate rows running opposite ways
+ *   2 CORNERS  four words driven in from the four edges to the four corners
+ *   3 REELS    three full-height columns spin like a fruit machine and stop on one line
+ *   4 SPREAD   one word, its letters set edge to edge, then stillness
+ *   5 FRAME    the line runs round all four edges of the screen, the mark in the middle
+ * and each leaves its own way (off the sides, back out the edges, dropping, dissolving, through
+ * the camera).
  */
 const FRAG = /* glsl */ `
 precision highp float;
@@ -61,16 +63,17 @@ const RIBBON = {
 }
 const BEAT = 4
 const BEATS = 5
-const EASINGS = ['linear', 'ease-in', 'sine.inOut', 'quart.out', 'back.out', 'expo.out']
-const Chars = ({ text }: { text: string }) => (
-  <>
-    {text.split('').map((c, i) => (
-      <span className="tempo__ch" key={i}>
-        <span>{c === ' ' ? ' ' : c}</span>
-      </span>
-    ))}
-  </>
-)
+const WALL = 'MAKE IT MOVE — MAKE IT MOVE — MAKE IT MOVE — MAKE IT MOVE — '
+const BORDER = 'KANISHQ SURENDRAN — MOTION, BY DESIGN — '.repeat(6)
+// three reels: each spins through its column and stops on the word at STOP_AT,
+// with a couple more below it so the column reads as a drum, not a list that ran out
+const REELS = [
+  ['FADE', 'SLIDE', 'SCALE', 'TURN', 'HOLD', 'WAIT', 'EASE', 'DRIFT', 'SETTLE'],
+  ['IN', 'OUT', 'UP', 'ON', 'BY', 'TO', 'WITH', 'FROM', 'THROUGH'],
+  ['linear', 'sine', 'quad', 'cubic', 'quart', 'back', 'expo.out', 'circ', 'power4'],
+]
+const REEL_LEN = REELS[0].length
+const STOP_AT = 6
 
 export default function Tempo() {
   const root = useRef<HTMLElement>(null)
@@ -163,6 +166,7 @@ export default function Tempo() {
         },
       })
       const at = (i: number) => i * BEAT
+      const out = (i: number) => at(i) + BEAT - 0.95 // every beat spends its last second leaving
       const show = (i: number) => tl.set(`.tempo__b${i + 1}`, { autoAlpha: 1 }, at(i))
       const hide = (i: number) => tl.set(`.tempo__b${i + 1}`, { autoAlpha: 0 }, at(i) + BEAT)
       // every beat kicks the picture: a ripple, and the ribbons move one step round the palette
@@ -170,49 +174,73 @@ export default function Tempo() {
         tl.fromTo(state, { kick: 1 }, { kick: 0, duration: 1.8, ease: 'power2.out' }, at(i))
         tl.to(state, { hue: (i + 1) / BEATS, duration: 1.6, ease: 'power2.inOut' }, at(i))
       }
-      const through = (sel: string, t: number) => tl.to(sel, { scale: 7, opacity: 0, filter: 'blur(18px)', duration: 0.95, ease: 'power3.in' }, t)
-      const reset = (sel: string, t: number) => tl.set(sel, { scale: 1, opacity: 1, filter: 'blur(0px)', x: 0, xPercent: 0, yPercent: 0 }, t)
 
-      /* 1 ─ rows from opposite sides, out through the camera */
+      /* 1 ─ WALL. Five rows of the same line fill the screen top to bottom, alternate rows
+             running opposite ways, solid then outlined. Leaves: each row off its own side. */
       show(0)
-      reset('.tempo__b1 .tempo__inner', at(0))
-      tl.fromTo('.tempo__b1 .tempo__row--a', { xPercent: -130 }, { xPercent: 0, duration: 1.5, ease: 'expo.out' }, at(0) + 0.1)
-        .fromTo('.tempo__b1 .tempo__row--b', { xPercent: 130 }, { xPercent: 0, duration: 1.5, ease: 'expo.out' }, at(0) + 0.22)
-        .fromTo('.tempo__b1 .tempo__row--b', { skewX: -18 }, { skewX: 0, duration: 1.7, ease: 'expo.out' }, at(0) + 0.22)
-      through('.tempo__b1 .tempo__inner', at(0) + BEAT - 0.95)
+      gsap.utils.toArray<HTMLElement>('.t1__row', el).forEach((row, i) => {
+        const dir = i % 2 ? 1 : -1
+        tl.fromTo(row, { xPercent: dir > 0 ? -58 : -4, opacity: 0 }, { xPercent: dir > 0 ? -34 : -28, opacity: 1, duration: BEAT - 0.95, ease: 'power2.out' }, at(0) + i * 0.07)
+          .to(row, { xPercent: dir > 0 ? 40 : -110, duration: 0.95, ease: 'power3.in' }, out(0))
+      })
       hide(0)
 
-      /* 2 ─ from deep in the frame, then the rows part */
+      /* 2 ─ CORNERS. Four words, one driven in from each edge to its own corner, with a cross of
+             hairlines drawn through the middle. Leaves: every word back out the way it came. */
       show(1)
-      reset('.tempo__b2 .tempo__row', at(1))
-      tl.fromTo('.tempo__b2 .tempo__inner', { scale: 0.25, opacity: 0, filter: 'blur(14px)' }, { scale: 1, opacity: 1, filter: 'blur(0px)', duration: 1.7, ease: 'expo.out' }, at(1) + 0.05)
-        .to('.tempo__b2 .tempo__row--a', { xPercent: -140, duration: 0.95, ease: 'power3.in' }, at(1) + BEAT - 0.95)
-        .to('.tempo__b2 .tempo__row--b', { xPercent: 140, duration: 0.95, ease: 'power3.in' }, at(1) + BEAT - 0.95)
+      const corners: [string, gsap.TweenVars][] = [
+        ['.t2__w--tl', { xPercent: -130 }],
+        ['.t2__w--tr', { yPercent: -150 }],
+        ['.t2__w--bl', { yPercent: 150 }],
+        ['.t2__w--br', { xPercent: 130 }],
+      ]
+      corners.forEach(([sel, from], i) => {
+        tl.fromTo(sel, { xPercent: 0, yPercent: 0, ...from }, { xPercent: 0, yPercent: 0, duration: 1.5, ease: 'expo.out' }, at(1) + 0.08 + i * 0.12)
+          .to(sel, { ...from, duration: 0.9, ease: 'power3.in' }, out(1) + i * 0.03)
+      })
+      tl.fromTo('.t2__h', { scaleX: 0 }, { scaleX: 1, duration: 1.6, ease: 'expo.inOut' }, at(1) + 0.3)
+        .fromTo('.t2__v', { scaleY: 0 }, { scaleY: 1, duration: 1.6, ease: 'expo.inOut' }, at(1) + 0.45)
+        .fromTo('.t2__note', { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 1, ease: 'expo.out' }, at(1) + 1.1)
+        .to('.t2__h', { scaleX: 0, duration: 0.7, ease: 'power3.in' }, out(1))
+        .to('.t2__v', { scaleY: 0, duration: 0.7, ease: 'power3.in' }, out(1))
+        .to('.t2__note', { opacity: 0, duration: 0.4 }, out(1))
       hide(1)
 
-      /* 3 ─ a ticker of easings spins and lands on the right one */
+      /* 3 ─ REELS. Three full-height columns spin like a fruit machine and stop, one after the
+             other, on a line across the middle. Leaves: the reels run on and drop away. */
       show(2)
-      tl.fromTo('.tempo__b3 .tempo__inner', { yPercent: 0, opacity: 1 }, { yPercent: 0, opacity: 1, duration: 0.01 }, at(2))
-        .fromTo('.tempo__b3 .tempo__row--a .tempo__ch > span', { yPercent: 115 }, { yPercent: 0, duration: 1.1, ease: 'expo.out', stagger: 0.04 }, at(2) + 0.1)
-        .fromTo('.tempo__reel', { yPercent: 0 }, { yPercent: -(100 * (EASINGS.length - 1)) / EASINGS.length, duration: 2.3, ease: 'expo.inOut' }, at(2) + 0.25)
-        .to('.tempo__b3 .tempo__inner', { yPercent: 60, opacity: 0, duration: 0.8, ease: 'power3.in' }, at(2) + BEAT - 0.8)
+      gsap.utils.toArray<HTMLElement>('.t3__reel', el).forEach((reel, i) => {
+        const stop = -(100 * STOP_AT) / REEL_LEN
+        tl.fromTo(reel, { yPercent: 0, opacity: 1 }, { yPercent: stop, duration: 1.9 + i * 0.35, ease: 'expo.inOut' }, at(2) + 0.05)
+          .to(reel, { yPercent: stop - 16, opacity: 0, duration: 0.8, ease: 'power3.in' }, out(2) + i * 0.05)
+      })
+      tl.fromTo('.t3__band', { scaleX: 0, opacity: 1 }, { scaleX: 1, duration: 1.8, ease: 'expo.inOut' }, at(2) + 0.2)
+        .to('.t3__band', { opacity: 0, duration: 0.5 }, out(2))
       hide(2)
 
-      /* 4 ─ letters rise one by one, hold, dissolve */
+      /* 4 ─ SPREAD. One word, four letters, set edge to edge across the whole width; each rises
+             on its own, then nothing moves. Leaves: the letters drift apart and dissolve. */
       show(3)
-      reset('.tempo__b4 .tempo__inner', at(3))
-      tl.fromTo('.tempo__b4 .tempo__ch > span', { yPercent: 115, rotate: 8 }, { yPercent: 0, rotate: 0, duration: 1.3, ease: 'expo.out', stagger: 0.045 }, at(3) + 0.1)
-        .to('.tempo__b4 .tempo__ch > span', { opacity: 0, filter: 'blur(10px)', duration: 0.7, ease: 'power2.in', stagger: { each: 0.025, from: 'random' } }, at(3) + BEAT - 1.0)
-        .set('.tempo__b4 .tempo__ch > span', { opacity: 1, filter: 'blur(0px)' }, at(3) + BEAT)
+      tl.set('.t4__l', { x: 0, opacity: 1, filter: 'blur(0px)' }, at(3))
+        .fromTo('.t4__l > span', { yPercent: 118 }, { yPercent: 0, duration: 1.7, ease: 'expo.out', stagger: 0.2 }, at(3) + 0.1)
+        .fromTo('.t4__lead > span', { yPercent: 118 }, { yPercent: 0, duration: 1.2, ease: 'expo.out' }, at(3) + 0.2)
+        .fromTo('.t4__base', { scaleX: 0 }, { scaleX: 1, duration: 2.2, ease: 'expo.out' }, at(3) + 0.3)
+        .to('.t4__l', { x: (i: number) => (i - 1.5) * 90, opacity: 0, filter: 'blur(14px)', duration: 0.9, ease: 'power2.in', stagger: 0.04 }, out(3))
+        .to('.t4__lead > span', { yPercent: -118, duration: 0.7, ease: 'power3.in' }, out(3))
+        .to('.t4__base', { scaleX: 0, duration: 0.7, ease: 'power3.in' }, out(3))
       hide(3)
 
-      /* 5 ─ the signature, out through the camera, and round again */
+      /* 5 ─ FRAME. The line runs round all four edges of the screen like a border in motion,
+             with the mark in the middle. Leaves: the mark flies through the camera. */
       show(4)
-      reset('.tempo__b5 .tempo__inner', at(4))
-      tl.fromTo('.tempo__b5 .tempo__mark > span', { yPercent: 115 }, { yPercent: 0, duration: 1.3, ease: 'expo.out', stagger: 0.09 }, at(4) + 0.1)
-        .fromTo('.tempo__b5 .tempo__rule', { scaleX: 0 }, { scaleX: 1, duration: 1.5, ease: 'expo.out' }, at(4) + 0.4)
-        .fromTo('.tempo__b5 .tempo__small > span', { yPercent: 115 }, { yPercent: 0, duration: 1.2, ease: 'expo.out' }, at(4) + 0.6)
-      through('.tempo__b5 .tempo__inner', at(4) + BEAT - 0.95)
+      tl.set('.t5__core', { scale: 1, opacity: 1, filter: 'blur(0px)' }, at(4))
+        .fromTo('.t5__run', { xPercent: (i: number) => (i === 2 ? -25 : 0) }, { xPercent: (i: number) => (i === 2 ? 0 : -25), duration: BEAT, ease: 'none' }, at(4))
+        .fromTo('.t5__strip > div', { yPercent: 110 }, { yPercent: 0, duration: 1.3, ease: 'expo.out', stagger: 0.1 }, at(4) + 0.05)
+        .fromTo('.t5__mark > span', { yPercent: 115 }, { yPercent: 0, duration: 1.3, ease: 'expo.out', stagger: 0.09 }, at(4) + 0.25)
+        .fromTo('.t5__rule', { scaleX: 0 }, { scaleX: 1, duration: 1.5, ease: 'expo.out' }, at(4) + 0.55)
+        .fromTo('.t5__small > span', { yPercent: 115 }, { yPercent: 0, duration: 1.2, ease: 'expo.out' }, at(4) + 0.75)
+        .to('.t5__core', { scale: 7, opacity: 0, filter: 'blur(18px)', duration: 0.95, ease: 'power3.in' }, out(4))
+        .to('.t5__strip > div', { yPercent: 110, duration: 0.7, ease: 'power3.in', stagger: 0.04 }, out(4))
       hide(4)
 
       if (reduced) {
@@ -247,62 +275,81 @@ export default function Tempo() {
       <canvas className="tempo__picture" ref={canvas} aria-hidden />
 
       <div className="tempo__stage serif" aria-hidden>
+        {/* 1 · wall */}
         <div className="tempo__beatbox tempo__b1">
-          <div className="tempo__inner">
-            <p className="tempo__row tempo__row--a">MAKE IT</p>
-            <p className="tempo__row tempo__row--b tempo__em">move.</p>
-          </div>
-        </div>
-
-        <div className="tempo__beatbox tempo__b2">
-          <div className="tempo__inner">
-            <p className="tempo__row tempo__row--a">MAKE IT</p>
-            <p className="tempo__row tempo__row--b tempo__em">matter.</p>
-          </div>
-        </div>
-
-        <div className="tempo__beatbox tempo__b3">
-          <div className="tempo__inner">
-            <p className="tempo__row tempo__row--a tempo__row--small">
-              <Chars text="EASE WITH" />
+          {[0, 1, 2, 3, 4].map((i) => (
+            <p className={`t1__row${i % 2 ? ' t1__row--line' : ''}${i === 2 ? ' tempo__em' : ''}`} key={i}>
+              {WALL}
             </p>
-            <div className="tempo__window">
-              <div className="tempo__reel tempo__em">
-                {EASINGS.map((e) => (
-                  <span key={e}>{e}</span>
-                ))}
+          ))}
+        </div>
+
+        {/* 2 · corners */}
+        <div className="tempo__beatbox tempo__b2">
+          <i className="t2__h" />
+          <i className="t2__v" />
+          <p className="t2__w t2__w--tl">MAKE</p>
+          <p className="t2__w t2__w--tr">IT</p>
+          <p className="t2__w t2__w--bl">MEAN</p>
+          <p className="t2__w t2__w--br tempo__em">something.</p>
+          <p className="t2__note caps">Movement is not the point</p>
+        </div>
+
+        {/* 3 · reels */}
+        <div className="tempo__beatbox tempo__b3">
+          <i className="t3__band" />
+          <div className="t3__reels">
+            {REELS.map((words, i) => (
+              <div className="t3__col" key={i}>
+                <div className={`t3__reel${i === 2 ? ' tempo__em' : ''}`}>
+                  {words.map((w) => (
+                    <span key={w}>{w}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 4 · spread */}
+        <div className="tempo__beatbox tempo__b4">
+          <p className="t4__lead">
+            <span>Then let it</span>
+          </p>
+          <p className="t4__word tempo__em">
+            {'rest'.split('').map((c, i) => (
+              <span className="t4__l" key={i}>
+                <span>{c}</span>
+              </span>
+            ))}
+          </p>
+          <i className="t4__base" />
+        </div>
+
+        {/* 5 · frame */}
+        <div className="tempo__beatbox tempo__b5">
+          {(['t', 'r', 'b', 'l'] as const).map((side) => (
+            <div className={`t5__strip t5__strip--${side}`} key={side}>
+              <div>
+                <p className="t5__run">{BORDER}</p>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div className="tempo__beatbox tempo__b4">
-          <div className="tempo__inner">
-            <p className="tempo__row tempo__row--a">
-              <Chars text="THEN LET IT" />
-            </p>
-            <p className="tempo__row tempo__row--b tempo__em">
-              <Chars text="rest." />
-            </p>
-          </div>
-        </div>
-
-        <div className="tempo__beatbox tempo__b5">
-          <div className="tempo__inner">
-            <p className="tempo__mark">
+          ))}
+          <div className="t5__core">
+            <p className="t5__mark">
               <span>K</span>
-              <span className="tempo__dash">—</span>
+              <span className="t5__dash">—</span>
               <span>S</span>
             </p>
-            <i className="tempo__rule" />
-            <p className="tempo__small">
+            <i className="t5__rule" />
+            <p className="t5__small">
               <span>Motion, by design</span>
             </p>
           </div>
         </div>
       </div>
 
-      <p className="sr-only">Make it move. Make it matter. Ease with expo.out. Then let it rest.</p>
+      <p className="sr-only">Make it move. Make it mean something. Ease with expo.out. Then let it rest.</p>
 
       <div className="tempo__hud caps" aria-hidden>
         <span>Film 03 — Tempo</span>

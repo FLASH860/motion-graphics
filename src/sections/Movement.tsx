@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { createSequence } from '@/lib/frames'
+import { createSequence, paintFilm } from '@/lib/frames'
 import { dwellTrigger, sceneOf } from '@/lib/scene'
 
 /**
@@ -13,8 +13,8 @@ import { dwellTrigger, sceneOf } from '@/lib/scene'
  * `lighten` into a dark page, and in the light theme this one scene stays a dark room.
  */
 const FRAMES = 240
-const W = 1280
-const H = 720
+const W = 1920
+const H = 1080
 const sequence = createSequence(FRAMES, (i) => `/watch/${String(i + 1).padStart(4, '0')}.webp`)
 
 /** Called once the intro is over, so the frames arrive long before the scene is reached. */
@@ -48,18 +48,21 @@ export default function Movement() {
     ctx2d.fillStyle = '#000'
     ctx2d.fillRect(0, 0, W, H)
 
+    let painted = ''
+    let shownFrame = -1
     const draw = (force = false) => {
+            painted = paintFilm(ctx2d, sequence, current, W, H, force ? '' : painted)
+      drawn = sequence.nearest(Math.round(current))
       const want = Math.round(current)
-      const have = sequence.nearest(want)
-      if (have < 0 || (have === drawn && !force)) return
-      ctx2d.drawImage(sequence.source(have)!, 0, 0, W, H)
-      drawn = have
-      counter.textContent = String(want + 1).padStart(3, '0')
-      bar.style.transform = `scaleX(${(want / (FRAMES - 1)).toFixed(4)})`
+      if (want !== shownFrame) {
+        shownFrame = want
+        counter.textContent = String(want + 1).padStart(3, '0')
+      }
+      bar.style.transform = `scaleX(${(current / (FRAMES - 1)).toFixed(4)})`
     }
     const tick = (_t: number, deltaMs: number) => {
       const d = target - current
-      if (Math.abs(d) < 0.01) current = target
+      if (Math.abs(d) < 0.004) current = target
       else current += d * Math.min(1, (Math.min(deltaMs, 64) / 1000) * 13)
       draw()
       // keep ready-to-draw bitmaps around the playhead, weighted toward where it is heading

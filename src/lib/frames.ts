@@ -73,16 +73,16 @@ export function createSequence(count: number, src: (index: number) => string, co
      * Drawing an <img> can decode it on the main thread every time (the browser is free to
      * drop decoded pixels), and that decode is the stall you feel while scrubbing. A bitmap is
      * decoded once, off the main thread, and draws as a plain texture copy. Holding all 240
-     * would cost close to a gigabyte, so only the frames near the playhead are kept, weighted
+     * at 1080p would cost about two gigabytes, so only the frames near the playhead are kept, weighted
      * toward the direction of travel, and the rest are released.
      */
     window(center: number, dir: number) {
-      const ahead = 16
-      const behind = 6
+      const ahead = 12
+      const behind = 5
       const lo = Math.max(0, center - (dir >= 0 ? behind : ahead))
       const hi = Math.min(count - 1, center + (dir >= 0 ? ahead : behind))
-      keepLo = Math.max(0, center - 24)
-      keepHi = Math.min(count - 1, center + 24)
+      keepLo = Math.max(0, center - 17)
+      keepHi = Math.min(count - 1, center + 17)
       for (let i = lo; i <= hi; i++) {
         const img = images[i]
         if (!img || bitmaps[i] || pending[i]) continue
@@ -124,4 +124,21 @@ export function createSequence(count: number, src: (index: number) => string, co
       }
     },
   }
+}
+
+type Sequence = ReturnType<typeof createSequence>
+
+/**
+ * Paint the film at a position: the nearest whole frame, drawn sharp.
+ * (Dissolving between neighbouring frames was tried to smooth slow scrolling; it read as blur
+ * while scrolling, so whole frames it is.)
+ * Returns a key for what was painted; pass it back in as `last` to skip identical repaints.
+ */
+export function paintFilm(ctx: CanvasRenderingContext2D, seq: Sequence, position: number, w: number, h: number, last: string) {
+  const i = seq.nearest(Math.max(0, Math.min(seq.count - 1, Math.round(position))))
+  if (i < 0) return last
+  const key = String(i)
+  if (key === last) return last
+  ctx.drawImage(seq.source(i)!, 0, 0, w, h)
+  return key
 }

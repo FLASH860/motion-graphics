@@ -1,4 +1,4 @@
-/* ───────── 11 Tempo: ribbons of light, and type that never sits still ───────── */
+/* ───────── 11 Tempo: ribbons of light, and type that uses the whole screen ───────── */
 .tempo {
   position: absolute;
   inset: 0;
@@ -27,83 +27,245 @@
 .tempo__beatbox {
   position: absolute;
   inset: 0;
-  display: grid;
-  place-items: center;
   visibility: hidden;
   overflow: hidden;
-}
-.tempo__inner {
-  display: grid;
-  justify-items: center;
-  gap: clamp(4px, 1vw, 16px);
-  text-align: center;
-  will-change: transform, opacity, filter;
-}
-.tempo__row {
-  font-size: min(15vw, 28svh);
-  line-height: 0.84;
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  will-change: transform;
-}
-.tempo__row--small {
-  font-size: min(6vw, 11svh);
-  letter-spacing: 0.08em;
 }
 .tempo__em {
   font-style: italic;
   color: var(--accent);
 }
-.tempo__ch {
-  display: inline-block;
-  overflow: hidden;
-  padding: 0.08em 0 0.14em;
-  margin: -0.08em 0 -0.14em;
-  vertical-align: top;
+
+/* ── 1 · WALL: five rows, edge to edge, top to bottom ── */
+.tempo__b1 {
+  display: grid;
+  grid-template-rows: repeat(5, 1fr);
+  align-items: center;
+  padding: 2svh 0;
 }
-.tempo__ch > span {
-  display: inline-block;
+.t1__row {
+  width: max-content;
+  font-size: min(19.5svh, 21vw);
+  line-height: 0.86;
+  white-space: nowrap;
+  will-change: transform, opacity;
+}
+/* alternate rows are drawn in outline only */
+.t1__row--line {
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--fg);
 }
 
-/* the ticker: a one-line window onto a tall column of words */
-.tempo__window {
-  height: 1em;
-  overflow: hidden;
-  font-size: min(15vw, 28svh);
-  line-height: 1;
-}
-.tempo__reel {
-  display: grid;
+/* ── 2 · CORNERS: one word in each corner, a cross of hairlines between them ── */
+.t2__w {
+  position: absolute;
+  font-size: min(17vw, 30svh);
+  line-height: 0.82;
+  white-space: nowrap;
   will-change: transform;
 }
-.tempo__reel span {
-  display: block;
-  height: 1em;
+.t2__w--tl {
+  left: var(--pad);
+  top: clamp(64px, 11svh, 120px);
+}
+.t2__w--tr {
+  right: var(--pad);
+  top: clamp(64px, 11svh, 120px);
+}
+.t2__w--bl {
+  left: var(--pad);
+  bottom: clamp(56px, 9svh, 100px);
+}
+.t2__w--br {
+  right: var(--pad);
+  bottom: clamp(56px, 9svh, 100px);
+  font-size: min(10vw, 20svh);
+}
+.t2__h,
+.t2__v {
+  position: absolute;
+  background: color-mix(in srgb, var(--fg) 45%, transparent);
+}
+.t2__h {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+}
+.t2__v {
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+}
+.t2__note {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 0.75em 1.5em 0.65em;
   white-space: nowrap;
+  border-radius: 999px;
+  background: var(--fg);
+  color: var(--bg);
+  line-height: 1;
 }
 
-/* signature */
-.tempo__mark {
+/* ── 3 · REELS: three full-height columns that stop on one line ── */
+.t3__reels {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* words fade toward the top and bottom of the screen, like a drum turning away */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 2%, rgba(0, 0, 0, 0.22) 30%, #000 44%, #000 56%, rgba(0, 0, 0, 0.22) 70%, transparent 98%);
+  mask-image: linear-gradient(to bottom, transparent 2%, rgba(0, 0, 0, 0.22) 30%, #000 44%, #000 56%, rgba(0, 0, 0, 0.22) 70%, transparent 98%);
+}
+.t3__col {
+  position: relative;
+  font-size: min(8.6vw, 17svh);
+}
+.t3__reel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  margin-top: -0.6em; /* the first word starts on the centre line */
+  display: grid;
+  justify-items: center;
+  will-change: transform, opacity;
+}
+.t3__reel span {
+  display: block;
+  height: 1.2em;
+  line-height: 1.2em;
+  white-space: nowrap;
+}
+.t3__band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: min(10.4vw, 20.4svh);
+  margin-top: calc(min(10.4vw, 20.4svh) / -2);
+  border-top: 1px solid color-mix(in srgb, var(--fg) 55%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--fg) 55%, transparent);
+}
+
+/* ── 4 · SPREAD: four letters across the full width ── */
+.t4__lead {
+  position: absolute;
+  left: var(--pad);
+  top: clamp(72px, 13svh, 130px);
+  overflow: hidden;
+  font-size: min(5.4vw, 10svh);
+  line-height: 1.1;
+}
+.t4__lead > span {
+  display: block;
+}
+.t4__word {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: clamp(60px, 12svh, 130px);
+  display: flex;
+  justify-content: space-between;
+  font-size: min(27vw, 62svh);
+  line-height: 0.8;
+}
+.t4__l {
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.06em 0.04em 0.16em;
+  margin: -0.06em -0.04em -0.16em;
+  will-change: transform, opacity, filter;
+}
+.t4__l > span {
+  display: inline-block;
+}
+.t4__base {
+  position: absolute;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: clamp(48px, 9svh, 100px);
+  height: 1px;
+  background: var(--fg);
+  transform-origin: left center;
+}
+
+/* ── 5 · FRAME: the line runs round all four edges ── */
+.t5__strip {
+  --band: clamp(34px, 6.4svh, 62px);
+  position: absolute;
+  height: var(--band);
+  overflow: hidden;
+  font-size: calc(var(--band) * 0.62);
+  line-height: var(--band);
+  white-space: nowrap;
+}
+.t5__strip > div {
+  will-change: transform;
+}
+.t5__run {
+  width: max-content;
+  will-change: transform;
+}
+/* top and bottom lines sit between the two side lines, so the four never cross */
+.t5__strip--t {
+  left: calc(var(--pad) + var(--band));
+  right: calc(var(--pad) + var(--band));
+  top: clamp(58px, 9svh, 96px);
+}
+.t5__strip--b {
+  left: calc(var(--pad) + var(--band));
+  right: calc(var(--pad) + var(--band));
+  bottom: clamp(50px, 8svh, 88px);
+}
+/* the side strips are full-height lines of type, turned to run up one side and down the other */
+.t5__strip--l {
+  left: var(--pad);
+  top: 100%;
+  width: 100svh;
+  transform-origin: 0 0;
+  transform: rotate(-90deg);
+}
+.t5__strip--r {
+  left: calc(100% - var(--pad));
+  top: 0;
+  width: 100svh;
+  transform-origin: 0 0;
+  transform: rotate(90deg);
+}
+.t5__core {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: clamp(8px, 1.6vmin, 20px);
+  will-change: transform, opacity, filter;
+}
+.t5__mark {
   display: flex;
   overflow: hidden;
-  font-size: min(26vmin, 28vw);
+  font-size: min(34vmin, 34vw);
   line-height: 1;
   padding: 0.04em 0;
 }
-.tempo__mark > span {
+.t5__mark > span {
   display: block;
 }
-.tempo__dash {
+.t5__dash {
   color: var(--accent);
   margin: 0 0.08em;
 }
-.tempo__rule {
+.t5__rule {
   display: block;
-  width: min(40vmin, 62vw);
+  width: min(46vmin, 62vw);
   height: 1px;
   background: var(--accent);
 }
-.tempo__small {
+.t5__small {
   overflow: hidden;
   font-family: var(--sans);
   font-size: 0.75rem;
@@ -112,7 +274,7 @@
   text-transform: uppercase;
   padding-left: 0.5em;
 }
-.tempo__small > span {
+.t5__small > span {
   display: block;
 }
 
@@ -146,12 +308,53 @@
 }
 
 @media (max-width: 760px) {
-  .tempo__row,
-  .tempo__window {
-    font-size: 19vw;
+  .t1__row {
+    font-size: 17svh;
   }
-  .tempo__row--small {
-    font-size: 8vw;
+  .t2__w {
+    font-size: 26vw;
+  }
+  .t2__w--br {
+    font-size: 15vw;
+  }
+  .t2__note {
+    font-size: 0.5625rem;
+  }
+  /* three columns do not fit a phone: the reels stack as three rows, each still a moving column */
+  .t3__reels {
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(3, 1fr);
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .t3__col {
+    font-size: 17vw;
+    overflow: hidden;
+    /* only the word each reel lands on is at full strength */
+    -webkit-mask-image: linear-gradient(to bottom, transparent 4%, rgba(0, 0, 0, 0.25) 30%, #000 40%, #000 60%, rgba(0, 0, 0, 0.25) 70%, transparent 96%);
+    mask-image: linear-gradient(to bottom, transparent 4%, rgba(0, 0, 0, 0.25) 30%, #000 40%, #000 60%, rgba(0, 0, 0, 0.25) 70%, transparent 96%);
+  }
+  .t3__band {
+    display: none;
+  }
+  .t4__lead {
+    font-size: 9vw;
+  }
+  .t4__word {
+    font-size: 31vw;
+    bottom: 22svh;
+  }
+  .t4__base {
+    bottom: 19svh;
+  }
+  .t5__strip--l,
+  .t5__strip--r {
+    display: none;
+  }
+  .t5__strip--t,
+  .t5__strip--b {
+    left: 0;
+    right: 0;
   }
   .tempo__hud > span:first-child {
     display: none;
