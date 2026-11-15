@@ -36,7 +36,7 @@ const STEP_H = 90
 const BOUNCES = 4
 
 // ── geometry ──
-const land = (i: number) => ({ x: OX + i * STEP_W, y: OY + i * STEP_H - R })
+const land = (i: number) => ({ x: OX + i * STEP_W, y: OY + i * STEP_H - R - 1.5 }) // resting on top of the 3px line
 const STAIRS = (() => {
   let d = `M${OX - 6 * STEP_W - 90} ${OY - 6 * STEP_H}`
   for (let i = -6; i <= 11; i++) d += ` H${OX + i * STEP_W + 90} V${OY + (i + 1) * STEP_H}`
@@ -183,70 +183,103 @@ export default function Loop() {
           .to(dot, { scaleX: 1, scaleY: 1, y, duration: 0.5, ease: 'elastic.out(1, 0.45)' }, t + 0.07)
       }
 
-      /* 1 ── FALL ─────────────────────────────────────────────── 0.0 → 3.0 */
-      // anticipation: it sinks into the step before it goes
-      tl.to(dot, { scaleX: 1.3, scaleY: 0.7, y: L0.y + R * 0.3, duration: 0.3, ease: 'power2.in' }, 0.15)
-      const HOP = 0.62
+      /* 1 ── FALL ─────────────────────────────────────────────── 0.0 → 3.3 */
+      // Each bounce is one unbroken chain of keyframes: launch, rise, hang, fall, squash. Nothing
+      // overlaps, so no two tweens ever pull the dot in different directions.
+      const SQ = 0.34 // how hard it squashes on a step
+      const LAUNCH = 0.08
+      const FLIGHT = 0.56
+      const SQUASH = 0.06
+      const HOP = LAUNCH + FLIGHT + SQUASH
+      // anticipation: it sinks into the first step before it goes
+      tl.to(dot, { scaleX: 1 + SQ, scaleY: 1 - SQ, y: L0.y + R * SQ, duration: 0.3, ease: 'power2.in' }, 0.2)
       for (let i = 0; i < BOUNCES; i++) {
         const t = 0.5 + i * HOP
         const a = land(i)
         const b = land(i + 1)
+        const last = i === BOUNCES - 1
+        const hit = last ? 0.5 : SQ
         tl.to(dot, { x: b.x, duration: HOP, ease: 'none' }, t)
-          // stretch on the way up, round at the top, stretch on the way down
-          .to(dot, { y: a.y - 150, scaleX: 0.9, scaleY: 1.12, duration: HOP * 0.46, ease: 'power2.out' }, t)
-          .to(dot, { y: b.y, scaleX: 0.88, scaleY: 1.16, duration: HOP * 0.54, ease: 'power2.in' }, t + HOP * 0.46)
-        if (i < BOUNCES - 1) impact(t + HOP, b.y, 0.34)
+          // launch: the squash releases into a stretch
+          .to(dot, { y: a.y, scaleX: 0.86, scaleY: 1.18, duration: LAUNCH, ease: 'power2.out' }, t)
+          // rise, rounding off toward the top
+          .to(dot, { y: a.y - 150, scaleX: 1, scaleY: 1, duration: FLIGHT * 0.46, ease: 'power2.out' }, t + LAUNCH)
+          // fall, stretching as it speeds up
+          .to(dot, { y: b.y, scaleX: 0.86, scaleY: 1.18, duration: FLIGHT * 0.54, ease: 'power2.in' }, t + LAUNCH + FLIGHT * 0.46)
+          // contact
+          .to(dot, { y: b.y + R * hit, scaleX: 1 + hit, scaleY: 1 - hit, duration: SQUASH, ease: 'power2.out' }, t + LAUNCH + FLIGHT)
       }
-      const T2 = 0.5 + BOUNCES * HOP // 2.98, the last and hardest landing
+      const T2 = 0.5 + BOUNCES * HOP // the last and hardest landing
       tl.to(cam, { x: P.x, duration: T2 - 0.5, ease: 'none' }, 0.5).to(cam, { y: P.y - 40, duration: T2 - 0.5, ease: 'sine.inOut' }, 0.5)
 
-      /* 2 ── WAVE ─────────────────────────────────────────────── 3.0 → 7.0 */
+      /* 2 ── WAVE ─────────────────────────────────────────────── 3.3 → 7.2 */
+      // where the dot sits when it is on the wave: pushed out along the slope's normal, so it
+      // rests on the line instead of cutting into it. It also runs faster through the troughs
+      // and slower over the crests, like something with weight.
+      const TOUCH = R + 1.5 // radius plus half the line's thickness
+      const onWave = (u: number) => {
+        const phi = u * Math.PI * 6 // three full waves
+        const x = P.x + (WAVE_L / (Math.PI * 2)) * (phi + 0.32 * (Math.cos(phi) - 1))
+        const k = (Math.PI * 2) / WAVE_L
+        const slope = -WAVE_A * k * Math.cos(k * (x - P.x))
+        const len = Math.hypot(1, slope)
+        return { x: x + (TOUCH * slope) / len, y: waveY(x) - TOUCH / len }
+      }
+      const W0 = onWave(0)
+      const BIG = 1.05 // the big bounce that covers the change from stairs to wave
+      const T3 = T2 + LAUNCH + BIG // touchdown on the wave
       tl.call(setChapter, [1], T2)
-      impact(T2, P.y - R, 0.5)
-      tl.set(ripples, { autoAlpha: 1 }, T2)
+        .set(ripples, { autoAlpha: 1 }, T2)
         .to(ripples, { scale: 1, duration: 1.5, ease: 'power2.out', stagger: 0.16 }, T2)
         .to(ripples, { autoAlpha: 0, duration: 0.9, ease: 'power1.in', stagger: 0.16 }, T2 + 0.5)
-        // the shock runs out along the stairs and they go slack
-        .to(m, { morphSVG: WAVE, duration: 1.1, ease: 'elastic.out(1, 0.6)' }, T2 + 0.08)
+        // the shock runs out along the stairs and they go slack, while the dot is in the air
+        .to(m, { morphSVG: WAVE, duration: 0.85, ease: 'power3.inOut' }, T2 + 0.05)
+        .to(dot, { y: P.y - R, scaleX: 0.84, scaleY: 1.2, duration: LAUNCH, ease: 'power2.out' }, T2)
+        .to(dot, { y: P.y - R - 230, scaleX: 1, scaleY: 1, duration: BIG * 0.48, ease: 'power2.out' }, T2 + LAUNCH)
+        .to(dot, { x: W0.x, y: W0.y, scaleX: 0.9, scaleY: 1.12, duration: BIG * 0.52, ease: 'power2.in' }, T2 + LAUNCH + BIG * 0.48)
+        .to(dot, { scaleX: 1, scaleY: 1, duration: 0.3, ease: 'power2.out' }, T3)
       const ride = { u: 0 }
+      const RIDE_T = 3.1
       tl.to(
         ride,
         {
           u: 1,
-          duration: 3.0,
+          duration: RIDE_T,
           ease: 'power1.inOut',
           onUpdate: () => {
-            const x = P.x + ride.u * RIDE
-            gsap.set(dot, { x, y: waveY(x) - R })
+            const p = onWave(ride.u)
+            gsap.set(dot, { x: p.x, y: p.y })
           },
         },
-        4.0,
+        T3,
       )
-        .to(cam, { x: P.x + RIDE, duration: 3.0, ease: 'power1.inOut' }, 4.0)
-        .set(ride, { u: 0 }, 7.02)
+        .to(cam, { x: P.x + RIDE, duration: RIDE_T, ease: 'power1.inOut' }, T3)
+        .set(ride, { u: 0 }, T3 + RIDE_T + 0.02)
+      // the rest of the film is timed from the end of the ride
+      const S = T3 + RIDE_T - 7.0
 
       /* 3 ── ORBIT ────────────────────────────────────────────── 7.0 → 11.6 */
-      tl.call(setChapter, [2], 7.0)
-        .to(m, { morphSVG: RING, duration: 1.3, ease: 'power3.inOut' }, 7.0)
-        .to(cam, { x: C.x, y: C.y, z: 1.35, duration: 2.0 }, 7.0)
+      tl.call(setChapter, [2], 7.0 + S)
+        .to(m, { morphSVG: RING, duration: 1.3, ease: 'power3.inOut' }, 7.0 + S)
+        .to(cam, { x: C.x, y: C.y, z: 1.35, duration: 2.0 }, 7.0 + S)
         // a hop, a hang, then down through the top of the hoop
-        .to(dot, { y: P.y - R - 110, scaleX: 0.9, scaleY: 1.12, duration: 0.5, ease: 'power2.out' }, 7.0)
-        .to(dot, { y: C.y + HOOP - R * 2, scaleX: 0.86, scaleY: 1.2, duration: 0.8, ease: 'power2.in' }, 7.55)
-      impact(8.35, C.y + HOOP - R * 2, 0.45)
-      tl.fromTo(planet, { scale: 0, scaleY: 0 }, { scale: 1, scaleY: 1, duration: 0.9, ease: 'back.out(1.7)' }, 8.45)
-        .to(dot, { motionPath: { path: ORBIT }, duration: 2.7, ease: 'power2.inOut' }, 8.9)
+        .to(dot, { x: C.x, y: P.y - R - 110, scaleX: 0.9, scaleY: 1.12, duration: 0.5, ease: 'power2.out' }, 7.0 + S)
+        .to(dot, { y: C.y + HOOP - R * 2, scaleX: 0.86, scaleY: 1.2, duration: 0.8, ease: 'power2.in' }, 7.55 + S)
+      impact(8.35 + S, C.y + HOOP - R * 2, 0.45)
+      tl.fromTo(planet, { scale: 0, scaleY: 0 }, { scale: 1, scaleY: 1, duration: 0.9, ease: 'back.out(1.7)' }, 8.45 + S)
+        .to(dot, { motionPath: { path: ORBIT }, duration: 2.7, ease: 'power2.inOut' }, 8.9 + S)
 
       /* 4 ── SEE ──────────────────────────────────────────────── 11.6 → 15.4 */
-      tl.call(setChapter, [3], 11.6)
-        .to(m, { scale: 0.52, duration: 0.7, ease: 'power3.inOut' }, 11.6)
-        .to(planet, { scale: 0.6, scaleY: 0.6, duration: 0.7, ease: 'power3.inOut' }, 11.6)
+      tl.call(setChapter, [3], 11.6 + S)
+        .to(m, { scale: 0.52, duration: 0.7, ease: 'power3.inOut' }, 11.6 + S)
+        .to(planet, { scale: 0.6, scaleY: 0.6, duration: 0.7, ease: 'power3.inOut' }, 11.6 + S)
         // the moon drops onto the planet and becomes the light in the eye
-        .to(dot, { x: C.x + 20, y: C.y - 20, scaleX: 0.42, scaleY: 0.42, duration: 0.6, ease: 'back.out(1.8)' }, 11.65)
+        .to(dot, { x: C.x + 20, y: C.y - 20, scaleX: 0.42, scaleY: 0.42, duration: 0.6, ease: 'back.out(1.8)' }, 11.65 + S)
         // everything flattens into a closed lid
-        .to(m, { scaleY: 0.01, duration: 0.22, ease: 'power3.in' }, 12.35)
-        .to(planet, { scaleY: 0.01, duration: 0.22, ease: 'power3.in' }, 12.35)
-        .to(dot, { y: C.y, scaleY: 0.01, duration: 0.22, ease: 'power3.in' }, 12.35)
-        .to(lid, { drawSVG: '0% 100%', duration: 0.3, ease: 'power3.out' }, 12.45)
+        .to(m, { scaleY: 0.01, duration: 0.22, ease: 'power3.in' }, 12.35 + S)
+        .to(planet, { scaleY: 0.01, duration: 0.22, ease: 'power3.in' }, 12.35 + S)
+        .to(dot, { y: C.y, scaleY: 0.01, duration: 0.22, ease: 'power3.in' }, 12.35 + S)
+        .to(lid, { drawSVG: '0% 100%', duration: 0.3, ease: 'power3.out' }, 12.45 + S)
       const open = (t: number, d: number, ease: string) =>
         tl
           .to(lid, { morphSVG: LID_OPEN, duration: d, ease }, t)
@@ -259,59 +292,59 @@ export default function Loop() {
           .to(m, { scaleY: 0.01, duration: d, ease: 'power2.in' }, t)
           .to(planet, { scaleY: 0.01, duration: d, ease: 'power2.in' }, t)
           .to(dot, { y: C.y, scaleY: 0.01, duration: d, ease: 'power2.in' }, t)
-      open(13.0, 0.55, 'back.out(1.6)')
-      shut(14.05, 0.1)
-      open(14.17, 0.3, 'power3.out')
+      open(13.0 + S, 0.55, 'back.out(1.6)')
+      shut(14.05 + S, 0.1)
+      open(14.17 + S, 0.3, 'power3.out')
       // the pupil tightens before the plunge
-      tl.to(planet, { scale: 0.44, scaleY: 0.44, duration: 0.5, ease: 'power2.inOut' }, 14.75)
+      tl.to(planet, { scale: 0.44, scaleY: 0.44, duration: 0.5, ease: 'power2.inOut' }, 14.75 + S)
 
       /* 5 ── DARK ─────────────────────────────────────────────── 15.4 → 18.3 */
-      tl.call(setChapter, [4], 15.4)
-        .to(dot, { scaleX: 0, scaleY: 0, duration: 0.25, ease: 'power2.in' }, 15.35)
-        .to(planet, { scale: 0.9, scaleY: 0.9, duration: 1.0, ease: 'power2.in' }, 15.4)
-        .to(cam, { z: 70, duration: 1.0, ease: 'power3.in' }, 15.4)
+      tl.call(setChapter, [4], 15.4 + S)
+        .to(dot, { scaleX: 0, scaleY: 0, duration: 0.25, ease: 'power2.in' }, 15.35 + S)
+        .to(planet, { scale: 0.9, scaleY: 0.9, duration: 1.0, ease: 'power2.in' }, 15.4 + S)
+        .to(cam, { z: 70, duration: 1.0, ease: 'power3.in' }, 15.4 + S)
         // black. The world is re-set behind it.
-        .set(cover, { autoAlpha: 1 }, 16.38)
-        .set([m, planet, lid], { autoAlpha: 0 }, 16.4)
-        .set(cam, { x: 800, y: 450, z: 1 }, 16.42)
-        .set(m, { morphSVG: STAIRS, drawSVG: '0% 0%', scale: 1, scaleY: 1 }, 16.44)
-        .set(dot, { x: 800, y: 450 }, 16.44)
+        .set(cover, { autoAlpha: 1 }, 16.38 + S)
+        .set([m, planet, lid], { autoAlpha: 0 }, 16.4 + S)
+        .set(cam, { x: 800, y: 450, z: 1 }, 16.42 + S)
+        .set(m, { morphSVG: STAIRS, drawSVG: '0% 0%', scale: 1, scaleY: 1 }, 16.44 + S)
+        .set(dot, { x: 800, y: 450 }, 16.44 + S)
         // …and the black was a shutter all along
-        .set(blades, { y: 0 }, 16.6)
-        .set(shutter, { autoAlpha: 1, rotation: 0 }, 16.6)
-        .set(cover, { autoAlpha: 0 }, 16.62)
-        .to(blades, { y: 150, duration: 0.42, ease: 'expo.out' }, 16.85)
-        .to(shutter, { rotation: 32, duration: 0.42, ease: 'expo.out' }, 16.85)
-        .to(dot, { scaleX: 1, scaleY: 1, duration: 0.7, ease: 'elastic.out(1, 0.5)' }, 16.95)
+        .set(blades, { y: 0 }, 16.6 + S)
+        .set(shutter, { autoAlpha: 1, rotation: 0 }, 16.6 + S)
+        .set(cover, { autoAlpha: 0 }, 16.62 + S)
+        .to(blades, { y: 150, duration: 0.42, ease: 'expo.out' }, 16.85 + S)
+        .to(shutter, { rotation: 32, duration: 0.42, ease: 'expo.out' }, 16.85 + S)
+        .to(dot, { scaleX: 1, scaleY: 1, duration: 0.7, ease: 'elastic.out(1, 0.5)' }, 16.95 + S)
         // a breath in, then all the way open
-        .to(blades, { y: 118, duration: 0.3, ease: 'power2.inOut' }, 17.5)
-        .to(blades, { y: 1150, duration: 0.6, ease: 'power3.in' }, 17.8)
-        .to(shutter, { rotation: 78, duration: 0.6, ease: 'power3.in' }, 17.8)
-        .set(shutter, { autoAlpha: 0 }, 18.42)
+        .to(blades, { y: 118, duration: 0.3, ease: 'power2.inOut' }, 17.5 + S)
+        .to(blades, { y: 1150, duration: 0.6, ease: 'power3.in' }, 17.8 + S)
+        .to(shutter, { rotation: 78, duration: 0.6, ease: 'power3.in' }, 17.8 + S)
+        .set(shutter, { autoAlpha: 0 }, 18.42 + S)
 
       /* 6 ── DRAW ─────────────────────────────────────────────── 18.3 → 21.9 */
-      tl.call(setChapter, [5], 18.3)
+      tl.call(setChapter, [5], 18.3 + S)
         // wind up, then go: the dot is a nib and the line pours out behind it
-        .to(dot, { x: 772, scaleX: 0.8, scaleY: 1.2, duration: 0.28, ease: 'power2.in' }, 18.3)
-        .to(dot, { motionPath: { path: SCRIBBLE }, scaleX: 0.7, scaleY: 0.7, duration: 3.1, ease: 'power2.inOut' }, 18.6)
-        .to(scribble, { drawSVG: '0% 100%', duration: 3.1, ease: 'power2.inOut' }, 18.6)
-        .to(dot, { scaleX: 1, scaleY: 1, duration: 0.4, ease: 'back.out(2)' }, 21.7)
+        .to(dot, { x: 772, scaleX: 0.8, scaleY: 1.2, duration: 0.28, ease: 'power2.in' }, 18.3 + S)
+        .to(dot, { motionPath: { path: SCRIBBLE }, scaleX: 0.7, scaleY: 0.7, duration: 3.1, ease: 'power2.inOut' }, 18.6 + S)
+        .to(scribble, { drawSVG: '0% 100%', duration: 3.1, ease: 'power2.inOut' }, 18.6 + S)
+        .to(dot, { scaleX: 1, scaleY: 1, duration: 0.4, ease: 'back.out(2)' }, 21.7 + S)
 
       /* 7 ── ORDER ────────────────────────────────────────────── 21.9 → 25.2 */
       const seat = cellPos(0, 2)
-      tl.call(setChapter, [6], 21.9)
+      tl.call(setChapter, [6], 21.9 + S)
         // the loose line is pulled tight into one square…
-        .to(scribble, { morphSVG: SQUARE, duration: 0.55, ease: 'expo.inOut' }, 21.9)
+        .to(scribble, { morphSVG: SQUARE, duration: 0.55, ease: 'expo.inOut' }, 21.9 + S)
         // …which multiplies
-        .to(cells, { x: (i: number) => cellPos(CELLS[i].c, CELLS[i].r).x, y: (i: number) => cellPos(CELLS[i].c, CELLS[i].r).y, scale: 1, duration: 0.9, ease: 'back.out(1.5)', stagger: { amount: 0.5, from: 'center' } }, 22.4)
-        .to(scribble, { autoAlpha: 0, duration: 0.2 }, 22.45)
+        .to(cells, { x: (i: number) => cellPos(CELLS[i].c, CELLS[i].r).x, y: (i: number) => cellPos(CELLS[i].c, CELLS[i].r).y, scale: 1, duration: 0.9, ease: 'back.out(1.5)', stagger: { amount: 0.5, from: 'center' } }, 22.4 + S)
+        .to(scribble, { autoAlpha: 0, duration: 0.2 }, 22.45 + S)
         // the dot hops into the one empty seat
-        .to(dot, { x: seat.x, duration: 0.7, ease: 'none' }, 22.5)
-        .to(dot, { y: 330, duration: 0.33, ease: 'power2.out' }, 22.5)
-        .to(dot, { y: seat.y, duration: 0.37, ease: 'power2.in' }, 22.83)
-      impact(23.2, seat.y, 0.35)
+        .to(dot, { x: seat.x, duration: 0.7, ease: 'none' }, 22.5 + S)
+        .to(dot, { y: 330, duration: 0.33, ease: 'power2.out' }, 22.5 + S)
+        .to(dot, { y: seat.y, duration: 0.37, ease: 'power2.in' }, 22.83 + S)
+      impact(23.2 + S, seat.y, 0.35)
       // stadium wave, twice, left to right; the dot leads
-      for (const t of [23.6, 24.35]) {
+      for (const t of [23.6 + S, 24.35 + S]) {
         tl.to(dot, { y: seat.y - 46, duration: 0.24, ease: 'sine.out' }, t)
           .to(dot, { y: seat.y, duration: 0.3, ease: 'sine.in' }, t + 0.24)
           .to(cells, { y: (i: number) => cellPos(CELLS[i].c, CELLS[i].r).y - 46, rotation: 90, duration: 0.24, ease: 'sine.out', stagger: (i: number) => CELLS[i].c * 0.075 }, t)
@@ -320,56 +353,56 @@ export default function Loop() {
       }
 
       /* 8 ── CHAIN ────────────────────────────────────────────── 25.2 → 29.2 */
-      tl.call(setChapter, [7], 25.2)
+      tl.call(setChapter, [7], 25.2 + S)
         // the grid is drawn into a spiral and stands up as dominoes
-        .to(cells, { x: (i: number) => SPIRAL[i].x, y: (i: number) => SPIRAL[i].y, scale: 0, rotation: 180, duration: 0.8, ease: 'power3.inOut', stagger: 0.012 }, 25.2)
-        .to(dominoes, { scaleY: 1, duration: 0.5, ease: 'back.out(2.4)', stagger: 0.012 }, 25.7)
+        .to(cells, { x: (i: number) => SPIRAL[i].x, y: (i: number) => SPIRAL[i].y, scale: 0, rotation: 180, duration: 0.8, ease: 'power3.inOut', stagger: 0.012 }, 25.2 + S)
+        .to(dominoes, { scaleY: 1, duration: 0.5, ease: 'back.out(2.4)', stagger: 0.012 }, 25.7 + S)
         // the dot rolls back, then in
-        .to(dot, { x: seat.x - 34, duration: 0.3, ease: 'power2.out' }, 26.3)
-        .to(dot, { x: SPIRAL[0].x - R - 6, duration: 0.3, ease: 'power3.in' }, 26.6)
-        .to(dot, { x: SPIRAL[0].x - R - 40, duration: 0.5, ease: 'power2.out' }, 26.9)
-        .to(dominoes, { rotation: (i: number) => SPIRAL[i].deg + 64, duration: 0.2, ease: 'power2.in', stagger: 0.047 }, 26.9)
-        .to(cam, { z: 1.22, duration: 2.2, ease: 'sine.inOut' }, 26.9)
+        .to(dot, { x: seat.x - 34, duration: 0.3, ease: 'power2.out' }, 26.3 + S)
+        .to(dot, { x: SPIRAL[0].x - R - 6, duration: 0.3, ease: 'power3.in' }, 26.6 + S)
+        .to(dot, { x: SPIRAL[0].x - R - 40, duration: 0.5, ease: 'power2.out' }, 26.9 + S)
+        .to(dominoes, { rotation: (i: number) => SPIRAL[i].deg + 64, duration: 0.2, ease: 'power2.in', stagger: 0.047 }, 26.9 + S)
+        .to(cam, { z: 1.22, duration: 2.2, ease: 'sine.inOut' }, 26.9 + S)
         // …and is drawn after the chain into the middle
-        .to(dot, { x: 800, y: 450, duration: 1.5, ease: 'power2.inOut' }, 27.6)
+        .to(dot, { x: 800, y: 450, duration: 1.5, ease: 'power2.inOut' }, 27.6 + S)
 
       /* 9 ── ENGINE ───────────────────────────────────────────── 29.2 → 32.6 */
-      tl.call(setChapter, [8], 29.2)
+      tl.call(setChapter, [8], 29.2 + S)
         // the fallen dominoes fly out and seat themselves as teeth
-        .to(dominoes, { x: (i: number) => TEETH[i].x, y: (i: number) => TEETH[i].y, rotation: (i: number) => TEETH[i].a, scaleY: TOOTH, duration: 0.85, ease: 'power3.inOut', stagger: 0.01 }, 29.2)
-        .to(cam, { z: 1, duration: 1.1 }, 29.2)
-        .to(dot, { x: GEARS[0].cx, y: GEARS[0].cy, duration: 0.8, ease: 'power3.inOut' }, 29.4)
+        .to(dominoes, { x: (i: number) => TEETH[i].x, y: (i: number) => TEETH[i].y, rotation: (i: number) => TEETH[i].a, scaleY: TOOTH, duration: 0.85, ease: 'power3.inOut', stagger: 0.01 }, 29.2 + S)
+        .to(cam, { z: 1, duration: 1.1 }, 29.2 + S)
+        .to(dot, { x: GEARS[0].cx, y: GEARS[0].cy, duration: 0.8, ease: 'power3.inOut' }, 29.4 + S)
         // the real gears take over from the dominoes on the same frame
-        .set(gears, { autoAlpha: 1 }, 30.5)
-        .set(dominoes, { autoAlpha: 0 }, 30.52)
-        .fromTo(rings, { drawSVG: '0% 0%' }, { drawSVG: '0% 100%', duration: 0.5, ease: 'power2.out', stagger: 0.08 }, 30.5)
+        .set(gears, { autoAlpha: 1 }, 30.5 + S)
+        .set(dominoes, { autoAlpha: 0 }, 30.52 + S)
+        .fromTo(rings, { drawSVG: '0% 0%' }, { drawSVG: '0% 100%', duration: 0.5, ease: 'power2.out', stagger: 0.08 }, 30.5 + S)
         // lock…
-        .fromTo(gears, { scale: 1.06 }, { scale: 1, duration: 0.35, ease: 'back.out(3)' }, 30.55)
+        .fromTo(gears, { scale: 1.06 }, { scale: 1, duration: 0.35, ease: 'back.out(3)' }, 30.55 + S)
       // …and turn. Speeds follow the tooth counts, so they mesh.
       const turn = (t: number, deg: number, d: number, ease: string) =>
         gears.forEach((g, i) => tl.to(g, { rotation: `+=${(deg * GEARS[i].dir * GEARS[0].teeth) / GEARS[i].teeth}`, duration: d, ease }, t))
-      turn(31.0, 150, 1.7, 'power1.inOut')
+      turn(31.0 + S, 150, 1.7, 'power1.inOut')
 
       /* 10 ── AGAIN ───────────────────────────────────────────── 32.6 → 36.4 */
-      tl.call(setChapter, [9], 32.7)
-      turn(32.7, 900, 1.5, 'power3.in')
+      tl.call(setChapter, [9], 32.7 + S)
+      turn(32.7 + S, 900, 1.5, 'power3.in')
       // the machine is swallowed by its own axle
-      tl.to(gears, { x: (i: number) => GEARS[0].cx - GEARS[i].cx, y: (i: number) => GEARS[0].cy - GEARS[i].cy, scale: 0, duration: 0.55, ease: 'power3.in' }, 33.65)
-        .to(dot, { scaleX: 1.7, scaleY: 1.7, duration: 0.14, ease: 'power2.out' }, 34.15)
-        .to(dot, { scaleX: 1, scaleY: 1, duration: 0.5, ease: 'elastic.out(1, 0.4)' }, 34.29)
+      tl.to(gears, { x: (i: number) => GEARS[0].cx - GEARS[i].cx, y: (i: number) => GEARS[0].cy - GEARS[i].cy, scale: 0, duration: 0.55, ease: 'power3.in' }, 33.65 + S)
+        .to(dot, { scaleX: 1.7, scaleY: 1.7, duration: 0.14, ease: 'power2.out' }, 34.15 + S)
+        .to(dot, { scaleX: 1, scaleY: 1, duration: 0.5, ease: 'elastic.out(1, 0.4)' }, 34.29 + S)
         // one hop; the staircase draws itself underneath just in time
-        .to(dot, { scaleX: 1.25, scaleY: 0.75, duration: 0.2, ease: 'power2.in' }, 34.75)
-        .to(dot, { x: L0.x, duration: 0.8, ease: 'none' }, 34.95)
-        .to(dot, { y: 250, scaleX: 0.9, scaleY: 1.14, duration: 0.38, ease: 'power2.out' }, 34.95)
-        .to(dot, { y: L0.y, scaleX: 0.88, scaleY: 1.16, duration: 0.42, ease: 'power2.in' }, 35.33)
-        .set(m, { autoAlpha: 1 }, 34.9)
-        .to(m, { drawSVG: '0% 100%', duration: 0.8, ease: 'power3.out' }, 34.95)
-      impact(35.75, L0.y, 0.4)
-      tl.set({}, {}, 36.4)
+        .to(dot, { scaleX: 1.25, scaleY: 0.75, duration: 0.2, ease: 'power2.in' }, 34.75 + S)
+        .to(dot, { x: L0.x, duration: 0.8, ease: 'none' }, 34.95 + S)
+        .to(dot, { y: 250, scaleX: 0.9, scaleY: 1.14, duration: 0.38, ease: 'power2.out' }, 34.95 + S)
+        .to(dot, { y: L0.y, scaleX: 0.88, scaleY: 1.16, duration: 0.42, ease: 'power2.in' }, 35.33 + S)
+        .set(m, { autoAlpha: 1 }, 34.9 + S)
+        .to(m, { drawSVG: '0% 100%', duration: 0.8, ease: 'power3.out' }, 34.95 + S)
+      impact(35.75 + S, L0.y, 0.4)
+      tl.set({}, {}, 36.4 + S)
 
       applyCam()
       if (reduced) {
-        tl.time(9.6) // a composed still: the dot rolling inside the hoop, the planet risen
+        tl.time(9.6 + 1.5) // a composed still: the dot rolling inside the hoop, the planet risen
         applyCam()
         return
       }
