@@ -11,6 +11,7 @@ import Flow from '@/sections/Flow'
 import Movement, { preloadWatch } from '@/sections/Movement'
 import Reel from '@/sections/Reel'
 import Spiral from '@/sections/Spiral'
+import Imprint, { preloadStrands } from '@/sections/Imprint'
 import Crystal from '@/sections/Crystal'
 import Tempo from '@/sections/Tempo'
 import Exit from '@/sections/Exit'
@@ -28,7 +29,12 @@ export default function App() {
   useEffect(() => {
     if (!loaderGone) return
     const id = window.setTimeout(preloadWatch, 1500)
-    return () => window.clearTimeout(id)
+    // the strands film is further down the page: fetch it once the watch frames have had a head start
+    const id2 = window.setTimeout(preloadStrands, 7000)
+    return () => {
+      window.clearTimeout(id)
+      window.clearTimeout(id2)
+    }
   }, [loaderGone])
 
   return (
@@ -60,13 +66,16 @@ export default function App() {
         <Scene index={8} name="Spiral" dwell={460} enter="columns">
           <Spiral />
         </Scene>
-        <Scene index={9} name="Crystal" dwell={130} enter="blade">
+        <Scene index={9} name="Imprint" dwell={520} enter="rise">
+          <Imprint />
+        </Scene>
+        <Scene index={10} name="Crystal" dwell={130} enter="blade">
           <Crystal />
         </Scene>
-        <Scene index={10} name="Tempo" dwell={150} enter="columns">
+        <Scene index={11} name="Tempo" dwell={150} enter="columns">
           <Tempo />
         </Scene>
-        <Scene index={11} name="Exit" dwell={110} enter="rise" last>
+        <Scene index={12} name="Exit" dwell={110} enter="rise" last>
           <Exit />
         </Scene>
       </main>

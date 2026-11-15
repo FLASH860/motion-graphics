@@ -1,0 +1,223 @@
+/* ───────── 09 Imprint: strands weave into a fingerprint; a sentence does the same ───────── */
+.imp {
+  /* the film keeps its own colours, so this scene is a dark room in both themes */
+  --bg: #0b0a09;
+  --fg: #ece6da;
+  --muted: #8d8578;
+  --accent: #e2a55a; /* matched to the strands */
+  --line: rgba(236, 230, 218, 0.16);
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  color: var(--fg);
+}
+
+/* the film covers the screen; the scanner lives in the same box so it stays on the print */
+.imp__film {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100vw, 177.78svh);
+  aspect-ratio: 16 / 9;
+  margin: calc(max(100vw, 177.78svh) * -0.28125) 0 0 calc(max(100vw, 177.78svh) * -0.5);
+  will-change: transform;
+}
+.imp__canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* a soft dark edge on the copy side, so the sentence always has something quiet behind it */
+.imp::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.55), transparent 55%);
+  pointer-events: none;
+}
+
+.imp__title {
+  position: absolute;
+  left: var(--pad);
+  top: clamp(84px, 15svh, 150px);
+  z-index: 3;
+  font-size: clamp(2.8rem, 6.4vw, 7.4rem);
+}
+
+/* ── the sentence ── */
+.imp__say {
+  position: absolute;
+  left: var(--pad);
+  top: 50%;
+  z-index: 3;
+  width: min(46vw, 44rem);
+  transform: translateY(-50%);
+  display: grid;
+  gap: clamp(14px, 1.8vw, 26px);
+}
+.imp__lines {
+  font-size: clamp(2.4rem, 5.3vw, 6.2rem);
+  line-height: 1;
+}
+.imp__line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 0.24em;
+}
+.imp__w {
+  display: inline-block;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.imp__w--em {
+  font-style: italic;
+  color: var(--accent);
+}
+.imp__rule {
+  display: block;
+  width: min(18rem, 60%);
+  height: 1px;
+  background: var(--accent);
+  transform-origin: left center;
+}
+.imp__after {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--muted);
+  visibility: hidden;
+}
+
+/* ── the scanner, placed on the finished print (fractions measured from the last frame) ── */
+.imp__reticle {
+  position: absolute;
+  left: 57.2%;
+  top: 9.6%;
+  width: 37%;
+  height: 82.2%;
+  visibility: hidden;
+  will-change: transform, opacity;
+}
+.imp__corner {
+  position: absolute;
+  width: 9%;
+  aspect-ratio: 1;
+  border: 0 solid var(--accent);
+}
+.imp__corner--tl {
+  left: 0;
+  top: 0;
+  border-left-width: 1.5px;
+  border-top-width: 1.5px;
+}
+.imp__corner--tr {
+  right: 0;
+  top: 0;
+  border-right-width: 1.5px;
+  border-top-width: 1.5px;
+}
+.imp__corner--bl {
+  left: 0;
+  bottom: 0;
+  border-left-width: 1.5px;
+  border-bottom-width: 1.5px;
+}
+.imp__corner--br {
+  right: 0;
+  bottom: 0;
+  border-right-width: 1.5px;
+  border-bottom-width: 1.5px;
+}
+.imp__sweep {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.imp__scan {
+  position: absolute;
+  inset: 0;
+  /* a bright edge with a short trail above it */
+  border-bottom: 1.5px solid var(--fg);
+  background: linear-gradient(to top, rgba(255, 224, 170, 0.22), transparent 26%);
+  will-change: transform;
+}
+.imp__readout {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 12px); /* above the brackets, clear of the stage marker below */
+  display: flex;
+  gap: 22px;
+  white-space: nowrap;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+}
+.imp__match {
+  color: var(--accent);
+}
+.imp__match b {
+  font-weight: 600;
+}
+
+/* ── which act of the film you are in ── */
+.imp__stages {
+  position: absolute;
+  right: var(--pad);
+  bottom: clamp(18px, 2.4vw, 32px);
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.imp__stage {
+  opacity: 0.4;
+  transition:
+    opacity 0.7s var(--ease-expo),
+    color 0.7s var(--ease-expo);
+}
+.imp__stage.is-on {
+  opacity: 1;
+  color: var(--accent);
+}
+.imp__track {
+  display: block;
+  width: clamp(60px, 8vw, 130px);
+  height: 1px;
+  background: var(--line);
+}
+.imp__track > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.imp .scene-tag {
+  z-index: 4;
+}
+
+@media (max-width: 760px) {
+  .imp::before {
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.7), transparent 50%);
+  }
+  .imp__title {
+    font-size: 13vw;
+  }
+  .imp__say {
+    top: auto;
+    bottom: 76px;
+    width: auto;
+    right: var(--pad);
+    transform: none;
+    gap: 10px;
+  }
+  .imp__lines {
+    font-size: 10.5vw;
+  }
+  /* phone: one line of status only. The scanner keeps its brackets and sweep, the figures go. */
+  .imp__readout,
+  .imp__track,
+  .imp__stage:not(.is-on) {
+    display: none;
+  }
+}

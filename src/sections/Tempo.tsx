@@ -5,7 +5,7 @@ import { reducedMotion } from '@/lib/scroll'
 import { getTheme } from '@/lib/theme'
 
 /**
- * 10 — Tempo. The sister film to Flow, with the energy turned up. Twenty seconds, looping,
+ * 11 — Tempo. The sister film to Flow, with the energy turned up. Twenty seconds, looping,
  * nothing tied to scroll.
  *
  * Picture: five ribbons of light crossing the frame (a fragment shader, half resolution). On
@@ -313,7 +313,7 @@ export default function Tempo() {
         </span>
         <span className="tempo__code">00:00:00</span>
       </div>
-      <p className="scene-tag caps">N° 10 — Tempo</p>
+      <p className="scene-tag caps">N° 11 — Tempo</p>
     </section>
   )
 }

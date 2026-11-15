@@ -2,6 +2,34 @@
 
 Decisions and open questions, newest first.
 
+## Revision 6: Imprint, the strands film (scene 9)
+
+Twelve scenes now: Arrival, Passage, Obsession, Anatomy, Flow, Movement, Reel, Spiral,
+**Imprint**, Crystal, Tempo, Exit.
+
+- **Source**: `Glowing_strands_form_human_finge…_1080p.mp4` from Downloads, copied (unedited) to
+  `assets/video/strands.mp4`. Strands of light fall, tangle and weave into a fingerprint. It
+  sits right after Spiral, whose cable trunk it continues.
+- **Pipeline**: `npm run assets:strands` extracts 240 WebP frames at 1280x720 to
+  `public/strands` (12 MB). The generator watermark is healed with ffmpeg `delogo` rather than a
+  black box, because strands pass behind it. Same canvas scrub and bitmap window as the watch.
+  Frames start loading 7 s after the loader, behind the watch frames.
+- **No cards.** The brief was to not repeat the watch's cards, so the copy does what the film
+  does: the eight words of one sentence start scattered across the whole screen, turned and
+  out of scale, and are pulled in along curved paths (x and y use different easings) until they
+  lock into a set line as the print forms. Then a scanner closes on the print: corner brackets
+  tighten, a line sweeps down it, and a match figure counts to 100. A three-step marker
+  (Threads / Weave / Mark) shows which act of the film you are in.
+- The scanner lives in the same box as the film, placed by fractions measured from the last
+  frame, so it stays on the print at any window size.
+- On screens narrower than the film, the picture pans to follow the strands to the print.
+- Dark room in both themes, like the watch: the footage keeps its colours.
+- Checked on the production build: all twelve scenes in dark, light, phone and reduced motion,
+  down and back up, no errors. Frame times unchanged (about 7 ms average, one frame over 34 ms
+  across the whole page).
+- Open: the phone layout puts the sentence over the lower ridges of the print; readable over a
+  dark gradient, but it is the least tidy view.
+
 ## Revision 5: theme switch on later pages, feet in the outro photo
 
 - **Theme switch flipped colour before the ink on later pages.** Cause: the root snapshot the

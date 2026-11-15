@@ -6,7 +6,7 @@ import { reducedMotion } from '@/lib/scroll'
 import { SKIP_INTRO, useActiveScene } from '@/lib/scene'
 
 const EASE = [0.16, 1, 0.3, 1] as const
-export const SCENE_COUNT = 11
+export const SCENE_COUNT = 12
 
 export default function Nav({ play }: { play: boolean }) {
   const root = useRef<HTMLElement>(null)
