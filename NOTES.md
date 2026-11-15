@@ -2,6 +2,25 @@
 
 Decisions and open questions, newest first.
 
+## Revision 5: theme switch on later pages, feet in the outro photo
+
+- **Theme switch flipped colour before the ink on later pages.** Cause: the root snapshot the
+  browser takes for a View Transition comes out blank once the document is scrolled past about
+  16,000 px. Confirmed by changing only the viewport height: the Reel page worked at 8,560 px of
+  scroll and failed at 17,334 px. With a blank old snapshot the page showed the new colours at
+  once and the ink only revealed content. Fix: just before the transition, every scene on
+  screen gets its own `view-transition-name` (up to four), and the nav and switch carry
+  permanent ones; each is captured in its own space, which does not hit the limit, and the same
+  mask animation runs on all of them. The nav layers were made viewport-sized so one mask lines
+  up on everything. Mid-transition coverage by the old theme on the Spiral page went from 2% to
+  32%, in line with the corridor page (35%).
+- **Outro photo cut at the ankles.** The photo had been cropped above the generator watermark,
+  which also cropped the feet. It is now kept at full height and the watermark (a small sparkle
+  on the floor, clear of the figure) is painted over with the floor beside it. The doorway's
+  proportions follow the taller image.
+- Checked again on the production build: all eleven scenes in dark, light, phone and reduced
+  motion; scrolling to the bottom and back up with real wheel input and with instant jumps.
+
 ## Revision 4: performance pass ("feels a little laggy")
 
 Measured on the production build (`vite preview`), not the dev server, which is much slower and

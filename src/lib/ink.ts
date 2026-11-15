@@ -131,6 +131,34 @@ type VTDocument = Document & {
   startViewTransition?: (cb: () => void) => { ready: Promise<void>; finished: Promise<void> }
 }
 
+/**
+ * Layers captured on their own for the transition.
+ *
+ * The root snapshot the browser takes for a View Transition comes out blank once the document is
+ * scrolled past roughly 16,000 px (a texture-size limit), so on the later scenes the old theme
+ * had nothing to show: the page changed colour at once and the ink only revealed content.
+ * Elements with their own `view-transition-name` are captured in their own space and do not hit
+ * that limit. So, just before the transition, every scene currently on screen gets a name
+ * (at most three overlap), and the nav and switch carry permanent ones. Each is viewport-sized
+ * and pinned to the viewport, so the one mask lines up on all of them.
+ */
+const STAGE = ['vt-stage-0', 'vt-stage-1', 'vt-stage-2', 'vt-stage-3']
+const LAYERS = [...STAGE, 'vt-nav', 'vt-switch']
+let tagged: HTMLElement[] = []
+function tagStage() {
+  tagged = []
+  document.querySelectorAll<HTMLElement>('.scene__pin:not(.is-idle)').forEach((pin) => {
+    const r = pin.getBoundingClientRect()
+    if (r.bottom <= 1 || r.top >= window.innerHeight - 1 || tagged.length >= STAGE.length) return
+    pin.style.setProperty('view-transition-name', STAGE[tagged.length])
+    tagged.push(pin)
+  })
+}
+function untagStage() {
+  tagged.forEach((pin) => pin.style.removeProperty('view-transition-name'))
+  tagged = []
+}
+
 let running = false
 export async function toggleTheme(button?: HTMLElement | null) {
   if (running) return
@@ -146,6 +174,7 @@ export async function toggleTheme(button?: HTMLElement | null) {
     else await building
     if (!sheetUrl) throw new Error('no ink sheet')
     document.documentElement.classList.add('ink-transition')
+    tagStage()
     const vt = doc.startViewTransition(() => flushSync(() => setTheme(next)))
     await vt.ready
     const frames: Keyframe[] = []
@@ -153,17 +182,21 @@ export async function toggleTheme(button?: HTMLElement | null) {
       const pos = `${((i % COLS) / (COLS - 1)) * 100}% ${(Math.floor(i / COLS) / (ROWS - 1)) * 100}%`
       frames.push({ maskPosition: pos, webkitMaskPosition: pos, easing: 'step-end', offset: i / (FRAMES - 1) })
     }
-    document.documentElement.animate(frames, {
-      duration: DURATION,
-      easing: 'linear',
-      fill: 'both',
-      pseudoElement: '::view-transition-new(root)',
-    })
+    // the same blot, in step, on every layer that was captured
+    for (const name of ['root', ...LAYERS]) {
+      document.documentElement.animate(frames, {
+        duration: DURATION,
+        easing: 'linear',
+        fill: 'both',
+        pseudoElement: `::view-transition-new(${name})`,
+      })
+    }
     await vt.finished
   } catch {
     if (getTheme() !== next) setTheme(next)
   } finally {
     document.documentElement.classList.remove('ink-transition')
+    untagStage()
     running = false
     prepareInk(button) // fresh blot shape next time
   }

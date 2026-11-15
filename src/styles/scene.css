@@ -160,7 +160,8 @@ html.has-cursor [data-cursor] {
 .nav__index {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  top: calc(clamp(16px, 2vw, 28px) + 15px);
+  transform: translate(-50%, -50%);
   display: flex;
   white-space: pre;
   pointer-events: none;

@@ -78,14 +78,17 @@
 }
 
 /* ───────── nav ───────── */
+/* Each nav layer is a viewport-sized box (only its children take pointer events). That makes it
+   the same shape as the page for the theme transition, so the one ink mask lines up on it. */
 .nav {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
+  bottom: 0;
   z-index: 50;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   padding: clamp(16px, 2vw, 28px) var(--pad);
   pointer-events: none;
@@ -98,6 +101,10 @@
 .nav--blend {
   mix-blend-mode: difference;
   color: #e9e3d7;
+  view-transition-name: vt-nav;
+}
+.nav--blend .nav__mark {
+  margin-top: 3px; /* optical: centres the mark on the switch beside it */
 }
 .nav--blend .caps,
 .nav--blend .nav__roll,
@@ -110,6 +117,7 @@
 .nav--switch {
   justify-content: flex-end;
   z-index: 51;
+  view-transition-name: vt-switch;
 }
 .nav__mark {
   font-family: var(--serif);

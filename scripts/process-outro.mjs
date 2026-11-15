@@ -2,7 +2,7 @@
 //   me-away-plate.webp   the set WITHOUT the figure: he is painted out by diffusing the
 //                        surrounding haze into his silhouette, so the layers can part cleanly
 //   me-away-figure.webp  the figure alone (local cutout), for the near parallax layer
-// Both are cropped above the generator watermark and graded the same way.
+// Both keep the full height of the photo and are graded the same way.
 // Usage: npm run assets:outro   (add --fresh to redo the cutout)
 import { execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
@@ -20,7 +20,10 @@ if (!existsSync(cut) || process.argv.includes('--fresh')) {
   execFileSync(process.execPath, [path.join(root, 'scripts/cutout.mjs'), src, cut], { stdio: 'inherit' })
 }
 
-const CROP = { left: 0, top: 0, width: 576, height: 880 } // the watermark sits below y≈900
+// The full height is kept so the feet are in frame. The generator watermark (a small sparkle on
+// the floor, bottom right, well clear of the figure) is painted out below instead of cropped off.
+const CROP = { left: 0, top: 0, width: 576, height: 1018 }
+const MARK = { x0: 456, y0: 902, x1: 518, y1: 966, shift: 66 } // patch it with the floor just to its left
 const SCALE = 1.6
 const grade = (img) =>
   img
@@ -37,6 +40,16 @@ for (let y = 0; y < 225; y++) for (let x = 385; x < W; x++) fig[(y * W + x) * 4 
 
 // ── plate: paint the figure out ──
 const plate = await sharp(src).extract(CROP).removeAlpha().raw().toBuffer()
+// first the watermark: copy the neighbouring floor over it, feathered at the edges
+for (let y = MARK.y0; y < MARK.y1; y++)
+  for (let x = MARK.x0; x < MARK.x1; x++) {
+    const edge = Math.min(x - MARK.x0, MARK.x1 - 1 - x, y - MARK.y0, MARK.y1 - 1 - y)
+    const a = Math.min(1, edge / 8)
+    for (let c = 0; c < 3; c++) {
+      const i = (y * W + x) * 3 + c
+      plate[i] = Math.round(plate[i] * (1 - a) + plate[(y * W + x - MARK.shift) * 3 + c] * a)
+    }
+  }
 // hole = the silhouette, grown generously so no dark fringe of him survives
 const S = 4 // work at quarter size: the fill is smooth haze, it needs no detail
 const w = Math.ceil(W / S)

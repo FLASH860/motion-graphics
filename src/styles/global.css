@@ -167,6 +167,47 @@ img {
 ::view-transition-new(cursor) {
   animation: none;
 }
+/* Scenes, nav and switch are captured as their own layers (see lib/ink.ts for why). They get
+   exactly the treatment the root gets: no default cross-fade, old underneath, new on top
+   and revealed through the ink mask. */
+::view-transition-group(vt-stage-0),
+::view-transition-group(vt-stage-1),
+::view-transition-group(vt-stage-2),
+::view-transition-group(vt-stage-3),
+::view-transition-group(vt-nav),
+::view-transition-group(vt-switch) {
+  animation: none;
+}
+::view-transition-old(vt-stage-0),
+::view-transition-old(vt-stage-1),
+::view-transition-old(vt-stage-2),
+::view-transition-old(vt-stage-3),
+::view-transition-old(vt-nav),
+::view-transition-old(vt-switch),
+::view-transition-new(vt-stage-0),
+::view-transition-new(vt-stage-1),
+::view-transition-new(vt-stage-2),
+::view-transition-new(vt-stage-3),
+::view-transition-new(vt-nav),
+::view-transition-new(vt-switch) {
+  animation: none;
+  mix-blend-mode: normal;
+  height: 100%;
+}
+.ink-transition::view-transition-old(vt-stage-0),
+.ink-transition::view-transition-old(vt-stage-1),
+.ink-transition::view-transition-old(vt-stage-2),
+.ink-transition::view-transition-old(vt-stage-3),
+.ink-transition::view-transition-old(vt-nav),
+.ink-transition::view-transition-old(vt-switch) {
+  z-index: 1;
+}
+.ink-transition::view-transition-new(vt-stage-0),
+.ink-transition::view-transition-new(vt-stage-1),
+.ink-transition::view-transition-new(vt-stage-2),
+.ink-transition::view-transition-new(vt-stage-3),
+.ink-transition::view-transition-new(vt-nav),
+.ink-transition::view-transition-new(vt-switch),
 .ink-transition::view-transition-new(root) {
   z-index: 2;
   -webkit-mask-image: var(--ink-sheet);

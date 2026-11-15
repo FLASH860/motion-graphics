@@ -1,6 +1,6 @@
 /* ───────── 11 Exit: the sign-off ───────── */
 .exit {
-  --dh: min(76svh, 46vw * 1.53); /* door height */
+  --dh: min(80svh, 40vw * 1.77); /* door height (the photo is now full height, feet included) */
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -13,7 +13,7 @@
   left: 50%;
   top: 50%;
   height: var(--dh);
-  aspect-ratio: 922 / 1409;
+  aspect-ratio: 922 / 1630;
   transform: translate(-50%, -50%);
   overflow: hidden;
   border-radius: 3px;
@@ -49,7 +49,7 @@
 .exit__right {
   position: absolute;
   bottom: clamp(70px, 13svh, 130px);
-  width: calc(50vw - var(--dh) * 0.327 - var(--pad) - 3vw);
+  width: calc(50vw - var(--dh) * 0.283 - var(--pad) - 3vw);
   display: grid;
   gap: clamp(20px, 2.6vw, 38px);
 }
@@ -134,7 +134,7 @@
 
 @media (max-width: 900px) {
   .exit {
-    --dh: 44svh;
+    --dh: 47svh;
   }
   .exit__door {
     top: calc(72px + var(--dh) / 2);
