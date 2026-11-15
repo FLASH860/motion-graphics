@@ -246,7 +246,7 @@ const total = await frames(async (f, i) => {
   unblendFixed(f)
   if (i < DRIFT.until && removeDrifting(f)) cleaned++
   await sharp(f, { raw: { width: W, height: H, channels: 3 } })
-    .webp({ quality: 66, effort: 4 })
+    .webp({ quality: 66, effort: 6 })
     .toFile(path.join(out, String(i + 1).padStart(4, '0') + '.webp'))
   if (i % 40 === 0) console.log('frame', i + 1)
 })

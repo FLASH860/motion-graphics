@@ -6,7 +6,7 @@ import { dwellTrigger, onSceneShown, SKIP_INTRO } from '@/lib/scene'
 import { reducedMotion } from '@/lib/scroll'
 
 /**
- * 12 — Exit. The sign-off. The photograph sits in a doorway that opens from a slit; inside it
+ * 13 — Exit. The sign-off. The photograph sits in a doorway that opens from a slit; inside it
  * the set and the figure are separate layers (the figure is a local cutout of the same frame),
  * so he walks away from the background as you scroll and as the pointer moves.
  */
@@ -149,7 +149,7 @@ export default function Exit() {
         </p>
       </div>
 
-      <p className="scene-tag caps">N° 12 — Exit</p>
+      <p className="scene-tag caps">N° 13 — Exit</p>
       <p className="exit__legal caps exit__fade">© MMXXVI — Made by hand</p>
     </section>
   )

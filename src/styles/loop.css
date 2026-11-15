@@ -1,0 +1,74 @@
+/* ───────── 10 Loop: a 2D short in two colours ───────── */
+.lp {
+  --ink: var(--fg);
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+.lp__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.lp__stroke {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.lp__stroke--thin {
+  stroke-width: 1.5;
+}
+.lp__fill {
+  fill: var(--ink);
+}
+.lp__dot {
+  fill: var(--accent);
+}
+.lp__ripple {
+  stroke: var(--accent);
+}
+/* shutter blades: ink, with a hairline in the page colour so each blade reads */
+.lp__blade {
+  fill: var(--ink);
+  stroke: var(--bg);
+  stroke-width: 2;
+}
+.lp__cover,
+.lp__shutter {
+  visibility: hidden;
+}
+
+/* the one word on screen: which part of the loop you are in */
+.lp__chapter {
+  position: absolute;
+  right: var(--pad);
+  bottom: clamp(18px, 2.4vw, 32px);
+  display: flex;
+  gap: 12px;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  mix-blend-mode: difference;
+  color: #cfc8ba;
+}
+.lp__chapter b {
+  font-weight: 500;
+  color: var(--accent);
+}
+.lp__chapter i {
+  display: block;
+  overflow: hidden;
+  font-style: normal;
+  min-width: 5.5em;
+}
+.lp__chapter span {
+  display: block;
+}
+.lp .scene-tag {
+  mix-blend-mode: difference;
+  color: #cfc8ba;
+}

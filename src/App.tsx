@@ -12,6 +12,7 @@ import Movement, { preloadWatch } from '@/sections/Movement'
 import Reel from '@/sections/Reel'
 import Spiral from '@/sections/Spiral'
 import Imprint, { preloadStrands } from '@/sections/Imprint'
+import Loop from '@/sections/Loop'
 import Crystal from '@/sections/Crystal'
 import Tempo from '@/sections/Tempo'
 import Exit from '@/sections/Exit'
@@ -69,13 +70,16 @@ export default function App() {
         <Scene index={9} name="Imprint" dwell={520} enter="rise">
           <Imprint />
         </Scene>
-        <Scene index={10} name="Crystal" dwell={130} enter="blade">
+        <Scene index={10} name="Loop" dwell={160}>
+          <Loop />
+        </Scene>
+        <Scene index={11} name="Crystal" dwell={130} enter="blade">
           <Crystal />
         </Scene>
-        <Scene index={11} name="Tempo" dwell={150} enter="columns">
+        <Scene index={12} name="Tempo" dwell={150} enter="columns">
           <Tempo />
         </Scene>
-        <Scene index={12} name="Exit" dwell={110} enter="rise" last>
+        <Scene index={13} name="Exit" dwell={110} enter="rise" last>
           <Exit />
         </Scene>
       </main>

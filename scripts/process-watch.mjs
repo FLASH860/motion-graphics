@@ -16,7 +16,7 @@ execFileSync(
   'ffmpeg',
   ['-v', 'error', '-y', '-i', path.join(root, 'assets/video/watch.mp4'),
    '-vf', 'drawbox=x=1126:y=566:w=70:h=68:color=black:t=fill,scale=1920:1080:flags=lanczos,unsharp=5:5:0.7:5:5:0.0',
-   '-c:v', 'libwebp', '-quality', '70', '-compression_level', '5', path.join(out, '%04d.webp')],
+   '-c:v', 'libwebp', '-quality', '70', '-compression_level', '6', path.join(out, '%04d.webp')],
   { stdio: 'inherit' },
 )
 console.log('→ public/watch:', readdirSync(out).length, 'frames')

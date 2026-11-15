@@ -2,6 +2,47 @@
 
 Decisions and open questions, newest first.
 
+## Revision 7: Loop (scene 10), Tempo type, 1080p films
+
+Thirteen scenes: Arrival, Passage, Obsession, Anatomy, Flow, Movement, Reel, Spiral, Imprint,
+**Loop**, Crystal, Tempo, Exit.
+
+- **10 Loop** (new, right after Imprint). A self-playing 2D short, 36.4 s, seamless, SVG plus one
+  GSAP timeline (MorphSVG, DrawSVG, MotionPath). No video, no WebGL, not tied to scroll; it
+  plays when the scene opens and pauses when it leaves. Two colours: ink and the accent.
+  One dot goes the whole way round and each scene hands its shape to the next: staircase →
+  (ripples) sine wave → hoop with the dot rolling inside and a planet growing → iris, pupil and
+  highlight, flattened to a lid that blinks open → dive through the pupil into a solid field that
+  turns out to be a closed shutter → the shutter opens on the dot, which shoots off as a pen nib
+  drawing one line → the line snaps to a square that multiplies into a grid doing a stadium wave
+  → the grid is pulled into a spiral of dominoes, the dot tips the first → the 44 fallen dominoes
+  fly out as the 44 teeth of three gears (20 + 14 + 10), which lock and turn at meshing speeds →
+  the gears spin up and collapse into the dot, which hops once while the staircase redraws under
+  it and lands where scene 1 starts. The staircase, wave, hoop and iris are one path morphing.
+  The camera is one object (x, y, zoom) applied to the world group.
+  Text: only a one-word chapter marker bottom right that rolls over per scene (Fall, Wave,
+  Orbit, See, Dark, Draw, Order, Chain, Engine, Again), plus the usual scene tag.
+  On narrow screens the camera pulls back so about 1450 of the stage's 1600 units stay in view.
+  Reduced motion holds a still frame.
+- **Tempo** type rebuilt to use the whole screen, a different construction per beat: wall of
+  rows, four corners, three slot-machine reels, one word spread edge to edge, a line running
+  round all four edges. Background shader unchanged.
+- **Films at 1080p.** Strands at its native 1080p. The watch source is 720p, so it is upscaled
+  (Lanczos + light unsharp): larger and crisper-edged, no new detail.
+- **Strands watermarks.** There were two: a fixed one, and a second copy that drifts up through
+  the strands in the first few seconds. The fixed one is un-blended exactly (its alpha is
+  recovered from the per-pixel minimum over the film) and is gone. The drifting one is found by
+  colour and tracked, then filled; small grey specks remain in about 20 frames where it crosses
+  strands. A more aggressive pass damaged thin strands and was reverted.
+- **Frame dissolve tried and reverted.** Blending neighbouring frames to smooth slow scrolling
+  read as blur; the films draw whole frames again.
+- **Compression.** Both sequences re-encoded at maximum WebP effort, same quality setting. It
+  made no meaningful difference (still about 19 MB + 11 MB): they were already near the floor
+  for this quality. Shrinking further means lower quality, fewer frames, or serving the watch at
+  its true 720p (which would save about 6 MB at no real loss of detail).
+- Checked on the production build: all thirteen scenes in dark, light, phone and reduced motion,
+  no errors; frame times about 7 to 8 ms, eight frames over 34 ms across the page.
+
 ## Revision 6: Imprint, the strands film (scene 9)
 
 Twelve scenes now: Arrival, Passage, Obsession, Anatomy, Flow, Movement, Reel, Spiral,
