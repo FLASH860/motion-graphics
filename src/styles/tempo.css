@@ -63,7 +63,6 @@
 }
 .tempo__ch > span {
   display: inline-block;
-  will-change: transform, opacity, filter;
 }
 
 /* the ticker: a one-line window onto a tall column of words */

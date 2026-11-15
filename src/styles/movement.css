@@ -3,7 +3,8 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: var(--bg);
+  /* true black, the colour the footage sits on, so the film needs no blend mode to disappear into it */
+  background: #000;
   display: grid;
   place-items: center;
 }
@@ -13,8 +14,6 @@
   height: auto;
   aspect-ratio: 16 / 9;
   will-change: transform;
-  /* black footage melts into the dark page */
-  mix-blend-mode: lighten;
 }
 /* The film keeps its own colours in both themes. In the light theme this scene is a dark room:
    the tokens are pinned to their dark values here, so everything inside follows. */

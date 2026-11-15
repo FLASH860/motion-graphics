@@ -12,7 +12,9 @@ let locked = false
 /** Lenis smooth scroll driven by GSAP's ticker so ScrollTrigger and Lenis share one clock. */
 export function initScroll() {
   if (reducedMotion()) return () => {}
-  lenis = new Lenis({ duration: 1.35, easing: (t) => 1 - Math.pow(1 - t, 4), smoothWheel: true })
+  // lerp, not a fixed duration: the page starts moving on the same frame as the wheel and
+  // settles quickly, which is the difference between "smooth" and "behind"
+  lenis = new Lenis({ lerp: 0.115, smoothWheel: true })
   if (locked) lenis.stop()
   lenis.on('scroll', ScrollTrigger.update)
   const raf = (time: number) => lenis?.raf(time * 1000)

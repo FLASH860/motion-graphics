@@ -52,7 +52,7 @@ export default function Movement() {
       const want = Math.round(current)
       const have = sequence.nearest(want)
       if (have < 0 || (have === drawn && !force)) return
-      ctx2d.drawImage(sequence.images[have]!, 0, 0, W, H)
+      ctx2d.drawImage(sequence.source(have)!, 0, 0, W, H)
       drawn = have
       counter.textContent = String(want + 1).padStart(3, '0')
       bar.style.transform = `scaleX(${(want / (FRAMES - 1)).toFixed(4)})`
@@ -60,8 +60,10 @@ export default function Movement() {
     const tick = (_t: number, deltaMs: number) => {
       const d = target - current
       if (Math.abs(d) < 0.01) current = target
-      else current += d * Math.min(1, (Math.min(deltaMs, 64) / 1000) * 9)
+      else current += d * Math.min(1, (Math.min(deltaMs, 64) / 1000) * 13)
       draw()
+      // keep ready-to-draw bitmaps around the playhead, weighted toward where it is heading
+      sequence.window(Math.round(current), d >= 0 ? 1 : -1)
       // off screen and settled: stop costing frames
       if (!onScreen && current === target) run(false)
     }

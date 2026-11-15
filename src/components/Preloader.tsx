@@ -2,6 +2,7 @@ import { useEffect, useRef, type CSSProperties } from 'react'
 import gsap from 'gsap'
 import heroSrc from '@assets/processed/me-front-hero.webp'
 import { reducedMotion } from '@/lib/scroll'
+import { prewarmScenes } from '@/lib/scene'
 
 type Props = { onReveal: () => void; onDone: () => void }
 
@@ -11,8 +12,8 @@ const TICKS = 60
 const HOLE_POINTS = 56
 
 /**
- * The loader is a watch dial. Sixty ticks light one by one as real loading progresses (fonts +
- * hero portrait), a hand sweeps with them, and the count sits in the centre. At 100 the dial
+ * The loader is a watch dial. Sixty ticks light one by one as real loading progresses (fonts,
+ * hero portrait, and a pre-warm pass over every scene), a hand sweeps with them, and the count sits in the centre. At 100 the dial
  * becomes an aperture: a circular hole opens from its centre and the tick ring rides the edge
  * of that hole outward until it has left the screen, revealing the page underneath.
  *
@@ -31,8 +32,10 @@ export default function Preloader({ onReveal, onDone }: Props) {
     const ticks = Array.from(el.querySelectorAll<HTMLElement>('.pre__tick'))
     const reduced = reducedMotion()
     let loaded = 0
-    const total = 2
+    const total = 3
     const mark = () => (loaded = Math.min(total, loaded + 1))
+    // third thing the count waits for: every scene drawn once, unseen, so none stalls later
+    document.fonts.ready.then(prewarmScenes).then(mark, mark)
 
     document.fonts.ready.then(mark, mark)
     const img = new Image()

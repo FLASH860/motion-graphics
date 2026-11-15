@@ -7,6 +7,12 @@ export function createSequence(count: number, src: (index: number) => string, co
   const images: (HTMLImageElement | null)[] = new Array(count).fill(null)
   let loaded = 0
   let started = false
+  const bitmaps: (ImageBitmap | null)[] = new Array(count).fill(null)
+  const pending = new Uint8Array(count)
+  let keepLo = 0
+  let keepHi = -1
+  let heldLo = count
+  let heldHi = -1
   const listeners = new Set<(index: number) => void>()
 
   const order: number[] = []
@@ -61,6 +67,55 @@ export function createSequence(count: number, src: (index: number) => string, co
         if (i + d < count && images[i + d]) return i + d
       }
       return -1
+    },
+    /**
+     * Keep a window of frames around the playhead as ImageBitmaps.
+     * Drawing an <img> can decode it on the main thread every time (the browser is free to
+     * drop decoded pixels), and that decode is the stall you feel while scrubbing. A bitmap is
+     * decoded once, off the main thread, and draws as a plain texture copy. Holding all 240
+     * would cost close to a gigabyte, so only the frames near the playhead are kept, weighted
+     * toward the direction of travel, and the rest are released.
+     */
+    window(center: number, dir: number) {
+      const ahead = 16
+      const behind = 6
+      const lo = Math.max(0, center - (dir >= 0 ? behind : ahead))
+      const hi = Math.min(count - 1, center + (dir >= 0 ? ahead : behind))
+      keepLo = Math.max(0, center - 24)
+      keepHi = Math.min(count - 1, center + 24)
+      for (let i = lo; i <= hi; i++) {
+        const img = images[i]
+        if (!img || bitmaps[i] || pending[i]) continue
+        pending[i] = 1
+        // from a Blob, not from the <img>: only the Blob path decodes on a worker thread.
+        // (The file is already in the HTTP cache, so this fetch does not touch the network.)
+        fetch(src(i))
+          .then((r) => r.blob())
+          .then((blob) => createImageBitmap(blob))
+          .then(
+            (bmp) => {
+              pending[i] = 0
+              if (i >= keepLo && i <= keepHi) bitmaps[i] = bmp
+              else bmp.close()
+            },
+            () => (pending[i] = 0),
+          )
+      }
+      // release what the playhead has left behind
+      for (let i = heldLo; i <= heldHi; i++) {
+        if ((i < keepLo || i > keepHi) && bitmaps[i]) {
+          bitmaps[i]!.close()
+          bitmaps[i] = null
+        }
+      }
+      heldLo = Math.min(heldLo, lo)
+      heldHi = Math.max(heldHi, hi)
+      if (heldLo < keepLo) heldLo = keepLo
+      if (heldHi > keepHi) heldHi = keepHi
+    },
+    /** the fastest thing available to draw for frame i: a ready bitmap if there is one */
+    source(i: number): CanvasImageSource | null {
+      return bitmaps[i] ?? images[i]
     },
     onFrame(l: (index: number) => void) {
       listeners.add(l)

@@ -81,6 +81,19 @@ export default function Scene({ index, name, dwell = 0, enter = 'rect', first, l
         invalidateOnRefresh: true,
         onToggle: (self) => self.isActive && setActiveScene({ index, name }),
       })
+      // Rendering window: a scene only exists for the compositor from a little before it opens
+      // until the next one has covered it. Away from that it is visibility:hidden, so its layers
+      // (3D planes, canvases, glass) cost nothing while you are somewhere else on the page.
+      const LEAD = 130
+      const live = ScrollTrigger.create({
+        trigger: el,
+        start: () => `top-=${LEAD * unit()} top`,
+        end: () => `+=${(LEAD + tin + dwell + (last ? 300 : tout)) * unit() + 2}`,
+        invalidateOnRefresh: true,
+        onToggle: (self) => pin.classList.toggle('is-idle', !self.isActive),
+        onRefresh: (self) => pin.classList.toggle('is-idle', !self.isActive),
+      })
+      pin.classList.toggle('is-idle', !live.isActive)
       if (first) return
 
       const prev = el.previousElementSibling as HTMLElement

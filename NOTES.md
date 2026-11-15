@@ -2,6 +2,50 @@
 
 Decisions and open questions, newest first.
 
+## Revision 4: performance pass ("feels a little laggy")
+
+Measured on the production build (`vite preview`), not the dev server, which is much slower and
+is not what visitors get. Headless Chrome, RTX 3050, 1440x810, wheel-scrolling the whole page.
+
+| | frames over 34 ms, full page | worst stall |
+| --- | --- | --- |
+| before, normal CPU | 14 | 188 ms (Spiral appearing) |
+| after, normal CPU | 3 | 49 ms |
+| before, CPU slowed 4x | 51 | 188 ms |
+| after, CPU slowed 4x | 49 | 63 ms |
+
+Average frame time at normal speed is 7 to 8 ms in every scene. With the CPU slowed 4x the
+count of long frames barely moved, but the long stalls are gone and the watch scrub went from
+24 long frames to 9.
+
+What changed:
+
+- **Pre-warm under the loader.** The stalls when a scene first appeared were GPU-side (no script
+  or layout time in the long-frame records): shader compiles for blur and backdrop filters, the
+  first accelerated canvas draw. Every scene is now opened once, at 0.4% opacity, above the
+  loader, for six frames, while the dial is still counting. Spiral's first-appearance stall went
+  from about 165 ms to 35 ms, Crystal's from about 130 ms to 28 ms. A first attempt that warmed
+  them *behind* the loader did nothing: the compositor skips anything hidden by an opaque layer.
+- **Rendering window per scene.** A scene is `visibility: hidden` except from shortly before it
+  opens until the next scene covers it, so its layers cost nothing elsewhere on the page.
+- **Watch frames.** A sliding window of ImageBitmaps around the playhead (about 40 frames,
+  weighted toward the direction of travel, the rest released), decoded from Blobs so the decode
+  runs on a worker thread. Creating them from the `<img>` elements was tried first and was
+  worse: that path decodes on the main thread.
+- **No full-screen blend modes.** The grain overlay is plain alpha now; the watch sits on true
+  black instead of being blended into the page.
+- **Smooth scroll** uses a lerp (0.115) instead of a 1.35 s glide, so the page follows the wheel
+  instead of trailing it. This is probably most of what read as "laggy".
+- **Fewer layers**: per-letter spans no longer carry `will-change`.
+- **Lighter effects**: Spiral trunk 15 cables with longer segments; Crystal slab blur 26 to 18.
+- `?nopre` now works in production builds too (it only skips the intro).
+
+Final check on the production build: all eleven scenes land at the right position, fully open,
+scrolling down and back up, in dark, light, phone size and reduced motion, with no console
+errors or failed requests.
+
+Open: not profiled on a weak laptop, a real phone, or Opera itself (the numbers are Chrome).
+
 ## Revision 3: the real cursor bug, Reel position, livelier Crystal, Tempo
 
 Eleven scenes now: Arrival, Passage, Obsession, Anatomy, Flow, Movement, Reel, Spiral, Crystal,

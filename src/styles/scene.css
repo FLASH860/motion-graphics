@@ -24,6 +24,24 @@
 .scene--first > .scene__pin {
   clip-path: none;
 }
+/* outside its rendering window (set in Scene.tsx) a scene is not drawn or composited */
+.scene__pin.is-idle {
+  visibility: hidden;
+}
+/* pre-warm (lib/scene.ts): fully open and really drawn, but too faint to see, while the loader is up */
+/* (it has to sit above the loader for that: anything hidden behind an opaque layer is skipped
+   by the compositor, so it would never reach the GPU) */
+.scene__pin.is-warming {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 200;
+  visibility: visible !important;
+  clip-path: none !important;
+  opacity: 0.004;
+  pointer-events: none;
+}
 .scene__body {
   position: absolute;
   inset: 0;
@@ -65,7 +83,6 @@
 }
 .mask > span {
   display: block;
-  will-change: transform;
 }
 
 /* ───────── cursor ───────── */

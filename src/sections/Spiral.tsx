@@ -14,7 +14,7 @@ import { getTheme } from '@/lib/theme'
  * preserve-3d group, and scroll animates that group's rotateY and y. A page-coloured veil on the
  * axis fades the far side.
  *
- * The trunk is a 2D canvas: eighteen cables twisted round a common axis. Each is drawn in short
+ * The trunk is a 2D canvas: fifteen cables twisted round a common axis. Each is drawn in short
  * segments sorted by depth, so cables pass over and under each other properly, and pulses of
  * light run along them. The bundle is tied with clamps and climbs with the stair.
  */
@@ -33,7 +33,7 @@ const N = CARDS.length
 
 /* ── the cable trunk ── */
 const TRUNK_W = 520
-const STEP = 22 // px per drawn segment
+const STEP = 26 // px per drawn segment
 const PALETTE = {
   dark: { neon: ['#27e4ff', '#ff2fd0', '#ffb648', '#7d62ff'], body: '#07080d', sheath: '#1a1c27', clamp: '#0d0e15', additive: true },
   light: { neon: ['#0090ae', '#c8169e', '#cf7d10', '#4a36cc'], body: '#211f24', sheath: '#4a4750', clamp: '#2a282e', additive: false },
@@ -43,7 +43,7 @@ function makeCables(): Cable[] {
   // deterministic pseudo-random, so the bundle is the same on every visit
   let seed = 7
   const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646
-  return Array.from({ length: 18 }, (_, i) => ({
+  return Array.from({ length: 15 }, (_, i) => ({
     amp: 26 + rnd() * 120,
     twist: 0.0034 + rnd() * 0.0042,
     phase: rnd() * Math.PI * 2,

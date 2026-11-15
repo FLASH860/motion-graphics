@@ -70,7 +70,7 @@ export default function Passage() {
         if (o !== l.o) {
           l.o = o
           l.node.style.opacity = String(o)
-          l.node.style.visibility = o === 0 ? 'hidden' : 'visible'
+          l.node.style.visibility = o === 0 ? 'hidden' : 'inherit'
         }
         if (b !== l.b) {
           l.b = b

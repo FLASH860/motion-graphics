@@ -16,8 +16,8 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
  */
 export const TRANSITION = 100 // svh of scroll a rectangle takes to fill the screen
 
-/** `?nopre` in dev skips the preloader and entrances, for quick checks and screenshots. */
-export const SKIP_INTRO = import.meta.env.DEV && new URLSearchParams(location.search).has('nopre')
+/** `?nopre` skips the preloader and entrances, for quick checks and screenshots. */
+export const SKIP_INTRO = new URLSearchParams(location.search).has('nopre')
 
 export function sceneOf(el: Element) {
   const track = el.closest<HTMLElement>('.scene')!
@@ -59,6 +59,27 @@ export function onSceneShown(el: Element, play: () => void, reset?: () => void, 
     onEnter: play,
     onLeaveBack: reset,
   })
+}
+
+/**
+ * Pre-warm. The first time a scene is drawn the GPU has work to do that it never repeats:
+ * compiling the blur and blend shaders, decoding images, rasterising glyphs at display size.
+ * Left alone, that work lands on the exact frame the scene starts to open, as a visible stall.
+ * So while the loader still covers the page, each scene in turn is opened fully at an opacity
+ * too low to see, held for a few frames so it is really drawn, then closed again.
+ */
+export function prewarmScenes(): Promise<void> {
+  const pins = Array.from(document.querySelectorAll<HTMLElement>('.scene:not(.scene--first) > .scene__pin'))
+  const frames = (n: number) => new Promise<void>((r) => { const step = () => (--n <= 0 ? r() : requestAnimationFrame(step)); requestAnimationFrame(step) })
+  return pins.reduce(
+    (chain, pin) =>
+      chain.then(async () => {
+        pin.classList.add('is-warming')
+        await frames(6)
+        pin.classList.remove('is-warming')
+      }),
+    frames(2),
+  )
 }
 
 /* ───────── which scene is on screen (drives the index in the nav) ───────── */

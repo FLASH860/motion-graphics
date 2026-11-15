@@ -75,7 +75,6 @@
 .s1__char > span,
 .s4__char > span {
   display: inline-block;
-  will-change: transform;
 }
 
 /* ── 2 · MOTION (inverted palette) ── */
@@ -202,9 +201,7 @@
   font-size: min(21vw, 40svh);
   transform-style: preserve-3d;
 }
-.s4__char {
-  will-change: transform;
-}
+
 
 /* ── 5 · END ── */
 .reel__shot--5 {
